@@ -9,6 +9,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  // Exclude anthropic-quickstarts from build
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
   images: {
     remotePatterns: [
       {
