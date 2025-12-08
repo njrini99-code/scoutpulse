@@ -113,7 +113,7 @@ export function AIRecruitingAssistant() {
     return {
       topPosition: Object.entries(positions).sort((a, b) => b[1] - a[1])[0]?.[0],
       topLocation: Object.entries(locations).sort((a, b) => b[1] - a[1])[0]?.[0],
-      topGradYear: Object.entries(gradYears).sort((a, b) => b[1] - a[1])[0]?.[0] as number
+      topGradYear: Number(Object.entries(gradYears).sort((a, b) => b[1] - a[1])[0]?.[0]) || 0
     };
   };
 

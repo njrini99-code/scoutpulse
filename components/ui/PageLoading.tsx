@@ -472,6 +472,9 @@ export function FullPageLoading() {
   );
 }
 
+// Re-export new components for convenience
+export { LoadingScreen } from './LoadingScreen';
+
 // ═══════════════════════════════════════════════════════════════════════════
 // SUSPENSE FALLBACK WRAPPER
 // ═══════════════════════════════════════════════════════════════════════════

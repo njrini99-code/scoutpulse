@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useCurrentCoach } from '@/lib/hooks/useCurrentCoach';
 import { useCurrentHighSchoolOrg } from '@/lib/hooks/useCurrentHighSchoolOrg';
-import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { HsConversationList } from '@/components/coach/hs/Messaging/hs-conversation-list';
 import { HsConversationView } from '@/components/coach/hs/Messaging/hs-conversation-view';
@@ -16,7 +15,7 @@ export default function HsCoachMessagingPage() {
   if (loadingCoach || loadingOrg) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

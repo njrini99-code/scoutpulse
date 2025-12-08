@@ -45,7 +45,7 @@ export default function CoachNotificationsPage() {
 
       setNotifications(data || []);
     } catch (error) {
-      console.error('Error:', error);
+      logError(error, { component: 'NotificationsPage', action: 'loadNotifications', metadata: { catchBlock: true } });
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,8 @@ export default function CoachNotificationsPage() {
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
       );
     } catch (error) {
-      console.error('Error:', error);
+      logError(error, { component: 'NotificationsPage', action: 'markAsRead', metadata: { notificationId } });
+      toast.error('Failed to mark as read');
     }
   };
 
@@ -90,7 +91,8 @@ export default function CoachNotificationsPage() {
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       toast.success('All notifications marked as read');
     } catch (error) {
-      console.error('Error:', error);
+      logError(error, { component: 'NotificationsPage', action: 'markAllAsRead' });
+      toast.error('Failed to mark all as read');
     }
   };
 
@@ -109,7 +111,8 @@ export default function CoachNotificationsPage() {
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
       toast.success('Notification deleted');
     } catch (error) {
-      console.error('Error:', error);
+      logError(error, { component: 'NotificationsPage', action: 'deleteNotification', metadata: { notificationId } });
+      toast.error('Failed to delete notification');
     }
   };
 

@@ -172,7 +172,19 @@ function darkenColor(hex: string, percent: number): string {
   return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
 }
 
-function getThemeStyles(primaryColor: string, secondaryColor: string, isDark: boolean) {
+type ThemeStyles = {
+  banner: { background: string };
+  bannerOverlay: { background: string };
+  accent: string;
+  accentBg: string;
+  accentBorder: string;
+  text: string;
+  textMuted: string;
+  cardBg: string;
+  tabActive: { backgroundColor: string; borderColor: string; color: string };
+};
+
+function getThemeStyles(primaryColor: string, secondaryColor: string, isDark: boolean): ThemeStyles {
   const primary = primaryColor || '#00C27A';
   const secondary = secondaryColor || '#003B2A';
   
@@ -191,6 +203,66 @@ function getThemeStyles(primaryColor: string, secondaryColor: string, isDark: bo
     cardBg: isDark ? 'bg-slate-800/90 border-slate-700/50' : 'bg-white/95 border-slate-200/60 shadow-lg',
     tabActive: { backgroundColor: `${primary}20`, borderColor: primary, color: primary },
   };
+}
+
+interface SectionProps {
+  coach?: Coach | null;
+  editForm?: {
+    about: string;
+    program_values: string;
+    what_we_look_for: string;
+    academic_profile: string;
+    facility_summary: string;
+    tagline: string;
+    primary_color: string;
+    secondary_color: string;
+    accent_color: string;
+    use_dark_mode: boolean;
+    twitter_url: string;
+    instagram_url: string;
+    youtube_url: string;
+    program_website: string;
+  };
+  setEditForm?: React.Dispatch<React.SetStateAction<{
+    about: string;
+    program_values: string;
+    what_we_look_for: string;
+    academic_profile: string;
+    facility_summary: string;
+    tagline: string;
+    primary_color: string;
+    secondary_color: string;
+    accent_color: string;
+    use_dark_mode: boolean;
+    twitter_url: string;
+    instagram_url: string;
+    youtube_url: string;
+    program_website: string;
+  }>>;
+  editingSection?: string | null;
+  setEditingSection?: React.Dispatch<React.SetStateAction<string | null>>;
+  handleSave?: (fields: Partial<{
+    about: string;
+    program_values: string;
+    what_we_look_for: string;
+    academic_profile: string;
+    facility_summary: string;
+    tagline: string;
+    primary_color: string;
+    secondary_color: string;
+    accent_color: string;
+    use_dark_mode: boolean;
+    twitter_url: string;
+    instagram_url: string;
+    youtube_url: string;
+    program_website: string;
+  }>) => Promise<void>;
+  saving?: boolean;
+  isPreviewMode?: boolean;
+  theme?: ThemeStyles;
+  isDark?: boolean;
+  camps?: CampEvent[];
+  programColor?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -327,7 +399,7 @@ export default function CollegeCoachProgramPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -660,12 +732,12 @@ export default function CollegeCoachProgramPage() {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      value={editForm.primary_color}
+                      value={editForm.primary_color || '#00C27A'}
                       onChange={(e) => setEditForm({ ...editForm, primary_color: e.target.value })}
                       className="w-12 h-10 rounded-lg cursor-pointer border-0"
                     />
                     <Input
-                      value={editForm.primary_color}
+                      value={editForm.primary_color || '#00C27A'}
                       onChange={(e) => setEditForm({ ...editForm, primary_color: e.target.value })}
                       className={`flex-1 h-10 ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
                     />
@@ -676,12 +748,12 @@ export default function CollegeCoachProgramPage() {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      value={editForm.secondary_color}
+                      value={editForm.secondary_color || '#003B2A'}
                       onChange={(e) => setEditForm({ ...editForm, secondary_color: e.target.value })}
                       className="w-12 h-10 rounded-lg cursor-pointer border-0"
                     />
                     <Input
-                      value={editForm.secondary_color}
+                      value={editForm.secondary_color || '#003B2A'}
                       onChange={(e) => setEditForm({ ...editForm, secondary_color: e.target.value })}
                       className={`flex-1 h-10 ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
                     />
@@ -707,8 +779,8 @@ export default function CollegeCoachProgramPage() {
               <div>
                 <label className={`block text-sm font-medium mb-2 ${theme.textMuted}`}>Tagline</label>
                 <Input
-                  value={editForm.tagline}
-                  onChange={(e) => setEditForm({ ...editForm, tagline: e.target.value })}
+                    value={editForm.tagline || ''}
+                    onChange={(e) => setEditForm({ ...editForm, tagline: e.target.value })}
                   placeholder="Building champions on and off the field"
                   className={isDark ? 'bg-slate-700 border-slate-600' : ''}
                 />
@@ -720,7 +792,7 @@ export default function CollegeCoachProgramPage() {
                 <div className="flex items-center gap-2">
                   <Twitter className="w-4 h-4 text-slate-400" />
                   <Input
-                    value={editForm.twitter_url}
+                    value={editForm.twitter_url || ''}
                     onChange={(e) => setEditForm({ ...editForm, twitter_url: e.target.value })}
                     placeholder="https://twitter.com/yourprogram"
                     className={`flex-1 ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
@@ -729,7 +801,7 @@ export default function CollegeCoachProgramPage() {
                 <div className="flex items-center gap-2">
                   <Instagram className="w-4 h-4 text-slate-400" />
                   <Input
-                    value={editForm.instagram_url}
+                    value={editForm.instagram_url || ''}
                     onChange={(e) => setEditForm({ ...editForm, instagram_url: e.target.value })}
                     placeholder="https://instagram.com/yourprogram"
                     className={`flex-1 ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
@@ -741,7 +813,7 @@ export default function CollegeCoachProgramPage() {
             <div className={`p-6 border-t flex justify-end gap-3 ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
               <Button variant="outline" onClick={() => setShowThemeEditor(false)}>Cancel</Button>
               <Button onClick={handleSaveTheme} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                {saving ? <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                 Save Theme
               </Button>
             </div>
@@ -756,7 +828,10 @@ export default function CollegeCoachProgramPage() {
 // ABOUT SECTION
 // ═══════════════════════════════════════════════════════════════════════════
 
-function AboutSection({ coach, editForm, setEditForm, editingSection, setEditingSection, handleSave, saving, isPreviewMode, theme, isDark }: any) {
+function AboutSection({ coach, editForm, setEditForm, editingSection, setEditingSection, handleSave, saving, isPreviewMode, theme, isDark }: SectionProps) {
+  if (!theme || !editForm || !setEditForm || !setEditingSection) return null;
+  if (!coach) return null;
+  
   return (
     <div className="grid lg:grid-cols-3 gap-6">
       {/* Main Content */}
@@ -775,15 +850,15 @@ function AboutSection({ coach, editForm, setEditForm, editingSection, setEditing
             {editingSection === 'about' ? (
               <div className="space-y-3">
                 <Textarea
-                  value={editForm.about}
+                  value={editForm.about || ''}
                   onChange={(e) => setEditForm({ ...editForm, about: e.target.value })}
                   placeholder="Tell recruits about your program's history, achievements, and what makes it special..."
                   className={`min-h-[150px] ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
                 />
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" size="sm" onClick={() => setEditingSection(null)}>Cancel</Button>
-                  <Button size="sm" onClick={() => handleSave({ about: editForm.about })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                  <Button size="sm" onClick={() => handleSave?.({ about: editForm.about })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">
+                    {saving ? <div className="w-4 h-4 bg-white/20 rounded animate-pulse" /> : 'Save'}
                   </Button>
                 </div>
               </div>
@@ -816,15 +891,15 @@ function AboutSection({ coach, editForm, setEditForm, editingSection, setEditing
             {editingSection === 'look_for' ? (
               <div className="space-y-3">
                 <Textarea
-                  value={editForm.what_we_look_for}
+                  value={editForm.what_we_look_for || ''}
                   onChange={(e) => setEditForm({ ...editForm, what_we_look_for: e.target.value })}
                   placeholder="What qualities and skills are you looking for in recruits?"
                   className={`min-h-[120px] ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
                 />
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" size="sm" onClick={() => setEditingSection(null)}>Cancel</Button>
-                  <Button size="sm" onClick={() => handleSave({ what_we_look_for: editForm.what_we_look_for })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                  <Button size="sm" onClick={() => handleSave?.({ what_we_look_for: editForm.what_we_look_for })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">
+                    {saving ? <div className="w-4 h-4 bg-white/20 rounded animate-pulse" /> : 'Save'}
                   </Button>
                 </div>
               </div>
@@ -930,14 +1005,14 @@ function AboutSection({ coach, editForm, setEditForm, editingSection, setEditing
             {editingSection === 'academic' ? (
               <div className="space-y-3">
                 <Textarea
-                  value={editForm.academic_profile}
+                  value={editForm.academic_profile || ''}
                   onChange={(e) => setEditForm({ ...editForm, academic_profile: e.target.value })}
                   placeholder="Academic programs, support, and requirements..."
                   className={`min-h-[100px] ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
                 />
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" size="sm" onClick={() => setEditingSection(null)}>Cancel</Button>
-                  <Button size="sm" onClick={() => handleSave({ academic_profile: editForm.academic_profile })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">Save</Button>
+                  <Button size="sm" onClick={() => handleSave?.({ academic_profile: editForm.academic_profile })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">Save</Button>
                 </div>
               </div>
             ) : editForm.academic_profile ? (
@@ -956,7 +1031,9 @@ function AboutSection({ coach, editForm, setEditForm, editingSection, setEditing
 // FACILITIES SECTION
 // ═══════════════════════════════════════════════════════════════════════════
 
-function FacilitiesSection({ coach, editForm, setEditForm, editingSection, setEditingSection, handleSave, saving, isPreviewMode, theme, isDark }: any) {
+function FacilitiesSection({ coach, editForm, setEditForm, editingSection, setEditingSection, handleSave, saving, isPreviewMode, theme, isDark }: SectionProps) {
+  if (!theme || !editForm || !setEditForm || !setEditingSection) return null;
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -978,14 +1055,14 @@ function FacilitiesSection({ coach, editForm, setEditForm, editingSection, setEd
             {editingSection === 'facility_desc' ? (
               <div className="space-y-3">
                 <Textarea
-                  value={editForm.facility_summary}
+                  value={editForm.facility_summary || ''}
                   onChange={(e) => setEditForm({ ...editForm, facility_summary: e.target.value })}
                   placeholder="Describe your facilities..."
                   className={`min-h-[100px] ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
                 />
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" size="sm" onClick={() => setEditingSection(null)}>Cancel</Button>
-                  <Button size="sm" onClick={() => handleSave({ facility_summary: editForm.facility_summary })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">Save</Button>
+                  <Button size="sm" onClick={() => handleSave?.({ facility_summary: editForm.facility_summary })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">Save</Button>
                 </div>
               </div>
             ) : editForm.facility_summary ? (
@@ -1033,7 +1110,7 @@ function FacilitiesSection({ coach, editForm, setEditForm, editingSection, setEd
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {coach.intro_video_url ? (
+          {coach?.intro_video_url ? (
             <div className={`aspect-video rounded-xl flex items-center justify-center ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
               <Play className={`w-16 h-16 ${theme.textMuted}`} />
             </div>
@@ -1058,7 +1135,10 @@ function FacilitiesSection({ coach, editForm, setEditForm, editingSection, setEd
 // CAMPS SECTION
 // ═══════════════════════════════════════════════════════════════════════════
 
-function CampsSection({ camps, isPreviewMode, theme, isDark }: any) {
+function CampsSection({ camps, isPreviewMode, theme, isDark }: SectionProps) {
+  if (!theme) return null;
+  const campsList = camps || [];
+  
   const statusColors = {
     open: 'bg-green-500/10 text-green-600 border-green-500/30',
     limited: 'bg-amber-500/10 text-amber-600 border-amber-500/30',
@@ -1081,7 +1161,7 @@ function CampsSection({ camps, isPreviewMode, theme, isDark }: any) {
         )}
       </div>
 
-      {camps.length === 0 ? (
+      {campsList.length === 0 ? (
         <Card className={theme.cardBg}>
           <CardContent className="py-16 text-center">
             <Calendar className={`w-12 h-12 mx-auto mb-4 ${theme.textMuted}`} />
@@ -1091,7 +1171,7 @@ function CampsSection({ camps, isPreviewMode, theme, isDark }: any) {
         </Card>
       ) : (
         <div className="space-y-4">
-          {camps.map((camp: CampEvent) => (
+          {campsList.map((camp: CampEvent) => (
             <Card key={camp.id} className={`overflow-hidden ${theme.cardBg}`}>
               <div className="h-1" style={{ backgroundColor: theme.accent }} />
               <CardContent className="p-6">
@@ -1156,7 +1236,9 @@ function CampsSection({ camps, isPreviewMode, theme, isDark }: any) {
 // COMMITMENTS SECTION
 // ═══════════════════════════════════════════════════════════════════════════
 
-function CommitmentsSection({ isPreviewMode, theme, isDark }: any) {
+function CommitmentsSection({ isPreviewMode, theme, isDark }: SectionProps) {
+  if (!theme) return null;
+  
   const statusBadge = {
     signed: 'bg-green-500/10 text-green-600 border-green-500/30',
     verbal: 'bg-blue-500/10 text-blue-600 border-blue-500/30',
@@ -1220,7 +1302,10 @@ function CommitmentsSection({ isPreviewMode, theme, isDark }: any) {
 // VALUES & CULTURE SECTION
 // ═══════════════════════════════════════════════════════════════════════════
 
-function ValuesSection({ coach, editForm, setEditForm, editingSection, setEditingSection, handleSave, saving, isPreviewMode, theme, isDark }: any) {
+function ValuesSection({ coach, editForm, setEditForm, editingSection, setEditingSection, handleSave, saving, isPreviewMode, theme, isDark }: SectionProps) {
+  if (!theme || !editForm || !setEditForm || !setEditingSection) return null;
+  if (!coach) return null;
+  
   const iconMap: Record<string, React.ReactNode> = {
     star: <Star className="w-5 h-5" />,
     heart: <Heart className="w-5 h-5" />,
@@ -1275,14 +1360,14 @@ function ValuesSection({ coach, editForm, setEditForm, editingSection, setEditin
           {editingSection === 'culture' ? (
             <div className="space-y-3">
               <Textarea
-                value={editForm.program_values}
+                value={editForm.program_values || ''}
                 onChange={(e) => setEditForm({ ...editForm, program_values: e.target.value })}
                 placeholder="Describe your program's culture and what players can expect..."
                 className={`min-h-[120px] ${isDark ? 'bg-slate-700 border-slate-600' : ''}`}
               />
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" onClick={() => setEditingSection(null)}>Cancel</Button>
-                <Button size="sm" onClick={() => handleSave({ program_values: editForm.program_values })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">Save</Button>
+                <Button size="sm" onClick={() => handleSave?.({ program_values: editForm.program_values })} disabled={saving} style={{ backgroundColor: theme.accent }} className="text-white">Save</Button>
               </div>
             </div>
           ) : editForm.program_values ? (
@@ -1348,7 +1433,7 @@ function ValuesSection({ coach, editForm, setEditForm, editingSection, setEditin
 
 function StaffSection({ isPreviewMode, theme, isDark, programColor }: { 
   isPreviewMode: boolean; 
-  theme: any; 
+  theme: ThemeStyles; 
   isDark: boolean;
   programColor: string;
 }) {

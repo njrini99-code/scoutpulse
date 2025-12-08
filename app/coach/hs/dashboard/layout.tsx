@@ -7,7 +7,6 @@ import { useMemo, ReactNode, useEffect } from 'react';
 import { useCurrentCoach } from '@/lib/hooks/useCurrentCoach';
 import { useCurrentHighSchoolOrg } from '@/lib/hooks/useCurrentHighSchoolOrg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 const TABS = [
@@ -38,7 +37,7 @@ export default function HsCoachDashboardLayout({ children }: { children: ReactNo
   if (loadingCoach || loadingOrg) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

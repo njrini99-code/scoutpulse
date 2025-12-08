@@ -1,5 +1,5 @@
-import { FullPageLoading } from '@/components/ui/PageLoading';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export default function Loading() {
-  return <FullPageLoading />;
+  return <LoadingScreen message="Loading your dashboard..." showProgress />;
 }

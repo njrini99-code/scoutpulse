@@ -185,7 +185,24 @@ export default function PlayerMessagesPage() {
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (convData) {
-      const formatted: Conversation[] = convData.map((conv: any) => {
+      interface ConversationRow {
+        id: string;
+        last_message_text: string | null;
+        last_message_at: string | null;
+        player_unread_count?: number;
+        coaches?: {
+          school_name?: string | null;
+          program_name?: string | null;
+          full_name: string | null;
+          logo_url?: string | null;
+        } | Array<{
+          school_name?: string | null;
+          program_name?: string | null;
+          full_name: string | null;
+          logo_url?: string | null;
+        }> | null;
+      }
+      const formatted: Conversation[] = convData.map((conv: ConversationRow) => {
         const coach = Array.isArray(conv.coaches) ? conv.coaches[0] : conv.coaches;
         return {
           id: conv.id,

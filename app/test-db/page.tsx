@@ -39,8 +39,9 @@ export default function TestDBPage() {
       const response = await fetch('/api/test-db');
       const data = await response.json();
       setResults(data);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      const error = e instanceof Error ? e : new Error(String(e));
+      setError(error.message);
     } finally {
       setLoading(false);
     }

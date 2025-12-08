@@ -4,6 +4,8 @@ import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/lib/theme-context';
 import { ErrorProvider } from '@/components/providers/ErrorProvider';
+import { AnimationProvider } from '@/components/providers/AnimationProvider';
+import { PWAProvider } from '@/components/pwa/PWAProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -54,7 +56,7 @@ export const metadata: Metadata = {
   },
   
   // Manifest
-  manifest: '/site.webmanifest',
+  manifest: '/manifest.json',
   
   // Robots
   robots: {
@@ -80,7 +82,11 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <ErrorProvider>
-            {children}
+            <AnimationProvider>
+              <PWAProvider>
+                {children}
+              </PWAProvider>
+            </AnimationProvider>
           </ErrorProvider>
           <Toaster 
             position="top-right"

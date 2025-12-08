@@ -211,6 +211,16 @@ const config: Config = {
           from: { transform: 'rotate(0deg)' },
           to: { transform: 'rotate(360deg)' },
         },
+        'gradient': {
+          '0%, 100%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
+        },
+        'blob': {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+          '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+          '100%': { transform: 'translate(0px, 0px) scale(1)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -223,6 +233,8 @@ const config: Config = {
         'bounce-in': 'bounce-in 0.6s ease-out',
         'neon-pulse': 'neon-pulse 2s ease-in-out infinite',
         'spin-slow': 'spin-slow 3s linear infinite',
+        'gradient': 'gradient 8s linear infinite',
+        'blob': 'blob 7s infinite',
       },
 
       // ─────────────────────────────────────────────────────────────────────

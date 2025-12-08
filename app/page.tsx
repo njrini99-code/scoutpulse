@@ -9,6 +9,12 @@ import { Shield, Video, Compass, Users } from "lucide-react";
 import { createClient } from '@/lib/supabase/client';
 import { isDevMode, getDevRole } from '@/lib/dev-mode';
 import { logError } from '@/lib/utils/errorLogger';
+import { HeroSection } from '@/components/landing/HeroSection';
+import { BentoGrid } from '@/components/landing/BentoGrid';
+import { TestimonialsCarousel } from '@/components/landing/TestimonialsCarousel';
+import { FinalCTASection } from '@/components/landing/FinalCTASection';
+import { ScrollProgress } from '@/components/landing/ScrollProgress';
+import { SectionDivider } from '@/components/landing/SectionDivider';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -199,31 +205,31 @@ export default function HomePage() {
   // LANDING PAGE - for unauthenticated users
   // ═══════════════════════════════════════════════════════════════════════
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#0A0A0A] to-[#111] text-white">
+    <main className="min-h-screen bg-slate-950 text-white scroll-smooth">
+      {/* Scroll Progress Indicator */}
+      <ScrollProgress />
+      
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0A0A0A]/80 border-b border-white/5 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 bg-slate-950/80 border-b border-white/5 backdrop-blur-xl">
         <nav className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <Link href="/" className="text-2xl font-bold text-white tracking-tight">
-              Scout<span className="text-blue-500">Pulse</span>
+              Scout<span className="bg-gradient-to-r from-emerald-400 to-teal-400 text-transparent bg-clip-text">Pulse</span>
             </Link>
             
             <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+              <a href="#features" className="text-sm font-medium text-white/60 hover:text-white transition-colors">
                 Features
               </a>
-              <a href="#for-players" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
-                For Players
-              </a>
-              <a href="#for-coaches" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
-                For Coaches
+              <a href="#testimonials" className="text-sm font-medium text-white/60 hover:text-white transition-colors">
+                Testimonials
               </a>
             </div>
             
             <div className="flex items-center gap-4">
               <Link 
                 href="/auth/login" 
-                className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-4 py-2"
+                className="text-sm font-medium text-white/60 hover:text-white transition-colors px-4 py-2"
               >
                 Log In
               </Link>
@@ -236,70 +242,57 @@ export default function HomePage() {
       </header>
 
       {/* HERO SECTION */}
-      <section className="mx-auto max-w-5xl px-6 pt-28 pb-24 text-center">
-        <Badge className="mb-6 bg-white/10 text-white px-4 py-1 border-white/20">
-          For high school, showcase, JUCO & college baseball
-        </Badge>
+      <HeroSection />
 
-        <h1 className="text-5xl sm:text-6xl font-bold mb-6">
-          Recruiting. Reimagined.
-        </h1>
+      {/* Section Divider */}
+      <SectionDivider />
 
-        <p className="text-lg text-gray-300 max-w-xl mx-auto mb-10">
-          ScoutPulse helps players showcase their talent and coaches discover,
-          evaluate, and recruit — all in one modern, AI-powered platform.
-        </p>
+      {/* FEATURES - Bento Grid */}
+      <div id="features">
+        <BentoGrid />
+      </div>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link href="/auth/signup?role=player">
-            <Button size="lg" className="bg-[#FF8A00] hover:bg-[#ff9e2f] text-white">
-              I&apos;m a Player →
-            </Button>
-          </Link>
+      {/* Section Divider */}
+      <SectionDivider />
 
-          <Link href="/auth/signup?role=coach">
-            <Button size="lg" className="bg-[#00C27A] hover:bg-[#1ad692] text-white">
-              I&apos;m a Coach →
-            </Button>
-          </Link>
-        </div>
-      </section>
+      {/* TESTIMONIALS */}
+      <div id="testimonials">
+        <TestimonialsCarousel />
+      </div>
 
-      {/* FEATURES */}
-      <section id="features" className="mx-auto max-w-6xl px-6 py-20">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
-          <Feature icon={<Shield className="w-6 h-6 text-emerald-400" />} title="Verified Profiles" />
-          <Feature icon={<Compass className="w-6 h-6 text-blue-400" />} title="AI-Powered Discovery" />
-          <Feature icon={<Video className="w-6 h-6 text-cyan-400" />} title="Video Highlights" />
-          <Feature icon={<Users className="w-6 h-6 text-purple-400" />} title="All Levels Supported" />
-        </div>
-      </section>
+      {/* Section Divider */}
+      <SectionDivider />
+
+      {/* FINAL CTA */}
+      <FinalCTASection />
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-white/5 mt-20">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-center md:text-left">
-            <Link href="/" className="text-2xl font-bold text-white mb-2 inline-block">
-              Scout<span className="text-blue-500">Pulse</span>
-            </Link>
-            <p className="text-sm text-muted-foreground">Modern. Simple. Trusted.</p>
+      <footer className="relative bg-slate-950 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-center md:text-left">
+              <Link href="/" className="text-2xl font-bold text-white mb-2 inline-block">
+                Scout<span className="bg-gradient-to-r from-emerald-400 to-teal-400 text-transparent bg-clip-text">Pulse</span>
+              </Link>
+              <p className="text-sm text-white/40">Modern. Simple. Trusted.</p>
+            </div>
+            <div className="flex items-center gap-8">
+              <Link href="#" className="text-sm text-white/40 hover:text-white transition-colors">
+                Privacy
+              </Link>
+              <Link href="#" className="text-sm text-white/40 hover:text-white transition-colors">
+                Terms
+              </Link>
+              <Link href="#" className="text-sm text-white/40 hover:text-white transition-colors">
+                Contact
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-8">
-            <Link href="#" className="text-sm text-muted-foreground hover:text-white transition-colors">
-              Privacy
-            </Link>
-            <Link href="#" className="text-sm text-muted-foreground hover:text-white transition-colors">
-              Terms
-            </Link>
-            <Link href="#" className="text-sm text-muted-foreground hover:text-white transition-colors">
-              Contact
-            </Link>
+          <div className="text-center mt-8 pt-8 border-t border-white/5">
+            <p className="text-sm text-white/40">
+              © {new Date().getFullYear()} ScoutPulse. Built to help serious athletes and serious programs connect.
+            </p>
           </div>
-        </div>
-        <div className="text-center mt-8 pt-8 border-t border-white/5">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} ScoutPulse. Built to help serious athletes and serious programs connect.
-          </p>
         </div>
       </footer>
     </main>

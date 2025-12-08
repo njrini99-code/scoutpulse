@@ -6,7 +6,6 @@ import { PlayerOverviewRecentGames } from '@/components/player/dashboard/Overvie
 import { PlayerOverviewShowcaseHighlight } from '@/components/player/dashboard/Overview/player-overview-showcase-highlight';
 import { useCurrentPlayer } from '@/lib/hooks/useCurrentPlayer';
 import { Card } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
 
 export default function PlayerOverviewPage() {
   const { player, profile, isLoading, error } = useCurrentPlayer();
@@ -14,7 +13,7 @@ export default function PlayerOverviewPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

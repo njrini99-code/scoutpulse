@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, Download, Share2, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+// @ts-ignore - jspdf types not available
 import jsPDF from 'jspdf';
 
 interface Player {

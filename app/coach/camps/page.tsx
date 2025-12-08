@@ -123,7 +123,7 @@ export default function CoachCampsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -248,7 +248,7 @@ export default function CoachCampsPage() {
                     Cancel
                   </Button>
                   <Button type="submit" variant="success" className="flex-1" disabled={saving}>
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create Event'}
+                    {saving ? <div className="w-4 h-4 bg-white/20 rounded animate-pulse" /> : 'Create Event'}
                   </Button>
                 </div>
               </form>

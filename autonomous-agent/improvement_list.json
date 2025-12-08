@@ -675,7 +675,7 @@
       "Store coach preferences in new table with ML scoring weights",
       "Add to coach dashboard as expandable AI panel"
     ],
-    "completed": false
+    "completed": true
   },
   {
     "id": 42,
@@ -695,7 +695,7 @@
       "Add voice search using Web Speech API",
       "Cache common query patterns to reduce API calls"
     ],
-    "completed": false
+    "completed": true
   },
   {
     "id": 43,
@@ -714,7 +714,8 @@
       "Ensure mobile-friendly with tap-and-hold on touch devices",
       "Create reusable QuickActions component"
     ],
-    "completed": false
+    "completed": false,
+    "scrapped": true
   },
   {
     "id": 44,
@@ -733,7 +734,8 @@
       "Store completion_score in player table, update on profile changes",
       "Add celebration animation when milestones reached"
     ],
-    "completed": false
+    "completed": false,
+    "scrapped": true
   },
   {
     "id": 45,
@@ -753,7 +755,7 @@
       "Add URL sharing for comparisons",
       "Use React Context for comparison state management"
     ],
-    "completed": false
+    "completed": true
   },
   {
     "id": 46,
@@ -774,7 +776,7 @@
       "Store scheduling preferences (morning person, weekends ok, etc.)",
       "Use external calendar integration (Google/Outlook) to check real availability"
     ],
-    "completed": false
+    "completed": true
   },
   {
     "id": 47,
@@ -795,7 +797,7 @@
       "Add privacy controls (who can see you viewed their profile)",
       "Include quick actions in activity items (reply to message, view profile)"
     ],
-    "completed": false
+    "completed": true
   },
   {
     "id": 48,
@@ -816,7 +818,7 @@
       "Compress large exports to ZIP files",
       "Track export analytics to see most popular formats"
     ],
-    "completed": false
+    "completed": true
   },
   {
     "id": 49,
@@ -836,7 +838,8 @@
       "Add message scheduling for optimal send times",
       "Include email signature templates with coach credentials"
     ],
-    "completed": false
+    "completed": false,
+    "scrapped": true
   }
 ]
 

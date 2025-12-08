@@ -8,7 +8,6 @@ import {
   Send,
   Users,
   User,
-  Loader2,
   Plus,
   ChevronRight,
   Clock,
@@ -132,14 +131,14 @@ export default function HSCoachMessagesPage() {
 
       if (memberships) {
         const players: TeamPlayer[] = memberships
-          .filter(m => m.players)
+          .filter((m: any) => m.players)
           .map((m: any) => ({
             id: m.player_id,
             player_id: m.player_id,
-            player_name: `${m.players.first_name || ''} ${m.players.last_name || ''}`.trim(),
-            avatar_url: m.players.avatar_url,
-            position: m.players.primary_position,
-            grad_year: m.players.grad_year,
+            player_name: `${m.players?.first_name || ''} ${m.players?.last_name || ''}`.trim(),
+            avatar_url: m.players?.avatar_url || null,
+            position: m.players?.primary_position || null,
+            grad_year: m.players?.grad_year || null,
             jersey_number: m.jersey_number,
           }));
         setTeamPlayers(players);
@@ -172,7 +171,7 @@ export default function HSCoachMessagesPage() {
         last_message: c.last_message_text,
         last_message_at: c.last_message_at,
         unread_count: c.program_unread_count || 0,
-        avatar_url: c.players?.avatar_url,
+        avatar_url: c.players?.avatar_url || null,
       }));
       setConversations(convs);
       
@@ -311,7 +310,7 @@ export default function HSCoachMessagesPage() {
   if (loading) {
     return (
       <div className={`min-h-screen ${theme.bg} flex items-center justify-center`}>
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -529,7 +528,7 @@ export default function HSCoachMessagesPage() {
                       className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white rounded-xl flex items-center gap-2 transition-colors"
                     >
                       {sending ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <div className="w-4 h-4 bg-white/20 rounded animate-pulse" />
                       ) : (
                         <>
                           <Send className="w-4 h-4" />

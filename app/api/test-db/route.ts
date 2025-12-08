@@ -64,10 +64,11 @@ export async function GET() {
         results.success = false;
         results.errors.push(`Players: ${error.message}`);
       }
-    } catch (e: any) {
-      results.tests.players = { accessible: false, error: e.message };
+    } catch (e: unknown) {
+      const error = e instanceof Error ? e : new Error(String(e));
+      results.tests.players = { accessible: false, error: error.message };
       results.success = false;
-      results.errors.push(`Players: ${e.message}`);
+      results.errors.push(`Players: ${error.message}`);
     }
 
     // Test 3: Check coaches table
@@ -86,10 +87,11 @@ export async function GET() {
         results.success = false;
         results.errors.push(`Coaches: ${error.message}`);
       }
-    } catch (e: any) {
-      results.tests.coaches = { accessible: false, error: e.message };
+    } catch (e: unknown) {
+      const error = e instanceof Error ? e : new Error(String(e));
+      results.tests.coaches = { accessible: false, error: error.message };
       results.success = false;
-      results.errors.push(`Coaches: ${e.message}`);
+      results.errors.push(`Coaches: ${error.message}`);
     }
 
     // Test 4: Check get_state_counts function
@@ -106,10 +108,11 @@ export async function GET() {
         results.success = false;
         results.errors.push(`get_state_counts: ${error.message}`);
       }
-    } catch (e: any) {
-      results.tests.get_state_counts = { accessible: false, error: e.message };
+    } catch (e: unknown) {
+      const error = e instanceof Error ? e : new Error(String(e));
+      results.tests.get_state_counts = { accessible: false, error: error.message };
       results.success = false;
-      results.errors.push(`get_state_counts: ${e.message}`);
+      results.errors.push(`get_state_counts: ${error.message}`);
     }
 
     // Test 5: Check other important tables
@@ -125,10 +128,11 @@ export async function GET() {
           results.success = false;
           results.errors.push(`${table}: ${error.message}`);
         }
-      } catch (e: any) {
-        results.tests[table] = { accessible: false, error: e.message };
+      } catch (e: unknown) {
+        const error = e instanceof Error ? e : new Error(String(e));
+        results.tests[table] = { accessible: false, error: error.message };
         results.success = false;
-        results.errors.push(`${table}: ${e.message}`);
+        results.errors.push(`${table}: ${error.message}`);
       }
     }
 
@@ -142,10 +146,11 @@ export async function GET() {
     return NextResponse.json(results, { 
       status: results.success ? 200 : 500 
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: err.message,
       timestamp: new Date().toISOString(),
     }, { status: 500 });
   }

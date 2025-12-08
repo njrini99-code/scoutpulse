@@ -329,18 +329,35 @@ export default function CollegeCoachDashboard() {
 
           // Load camps
           const coachCamps = await getCoachCamps(coachId);
-          const formattedCamps: Camp[] = coachCamps.map(camp => ({
-            id: camp.id,
-            title: camp.name || 'Camp',
-            date: formatCampDate(camp.start_date),
-            location: camp.location || 'TBD',
-            attending: camp.registration_count || 0,
-            capacity: camp.capacity || 0,
-            interested: camp.interested_count || 0,
-            status: (camp.registration_count || 0) >= (camp.capacity || 0) ? 'full' : 
-                    (camp.registration_count || 0) >= (camp.capacity || 0) * 0.8 ? 'limited' : 'open',
-            image: null, // CampEvent doesn't have image_url, can be added later
-          }));
+          const formattedCamps: Camp[] = coachCamps.map(camp => {
+            const attending = camp.registration_count || 0;
+            const capacity = camp.capacity || 0;
+            
+            // Handle edge case: if capacity is 0 or undefined, default to 'open'
+            // Also handle division by zero in status calculation
+            let status: 'open' | 'limited' | 'full' = 'open';
+            if (capacity > 0) {
+              if (attending >= capacity) {
+                status = 'full';
+              } else if (attending >= capacity * 0.8) {
+                status = 'limited';
+              } else {
+                status = 'open';
+              }
+            }
+            
+            return {
+              id: camp.id,
+              title: camp.name || 'Camp',
+              date: formatCampDate(camp.start_date),
+              location: camp.location || 'TBD',
+              attending,
+              capacity,
+              interested: camp.interested_count || 0,
+              status,
+              image: null, // CampEvent doesn't have image_url, can be added later
+            };
+          });
           setCamps(formattedCamps);
 
         } catch (error) {
@@ -947,7 +964,7 @@ function CampCard({ camp, programColor, onClick }: CampCardProps) {
     full: { label: 'Sold Out', bg: 'bg-red-500/10', text: 'text-red-600' },
   };
   const status = statusConfig[camp.status as keyof typeof statusConfig];
-  const fillPercent = Math.round((camp.attending / camp.capacity) * 100);
+  const fillPercent = camp.capacity > 0 ? Math.round((camp.attending / camp.capacity) * 100) : 0;
 
   return (
     <div 
