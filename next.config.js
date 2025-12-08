@@ -12,6 +12,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  // Use webpack for build (Turbopack compatibility)
+  turbopack: {},
   // Exclude anthropic-quickstarts from build
   pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
   images: {

@@ -58,7 +58,7 @@ export function DayBuilderView() {
       .select('*')
       .eq('user_id', user?.id)
       .eq('appointment_date', dateStr)
-      .order('route_order', { ascending: true, nullsLast: true })
+      .order('route_order', { ascending: true, nullsFirst: false })
       .order('appointment_time', { ascending: true });
 
     if (!error && data) {

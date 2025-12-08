@@ -79,7 +79,7 @@ export function DiscoveryPanel({
     new Set(
       leads
         .map((l) => l.industry)
-        .filter((i): i is string => Boolean(i) && isValidIndustry(i))
+        .filter((i): i is string => Boolean(i) && typeof i === 'string' && isValidIndustry(i))
         .map(i => i.trim().replace(/["\\]/g, ''))
     )
   ).sort();
@@ -451,7 +451,7 @@ export function DiscoveryPanel({
         )}
       </div>
 
-      {showImportModal && <CSVImport onClose={() => setShowImportModal(false)} onImport={onRefresh} />}
+      {showImportModal && <CSVImport onClose={() => setShowImportModal(false)} onComplete={onRefresh} />}
 
       {showManualEntryModal && (
         <ManualBusinessEntryModal

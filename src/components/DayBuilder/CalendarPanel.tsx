@@ -78,7 +78,7 @@ export function CalendarPanel({
     return `${displayHour}:${minute} ${period}`;
   };
 
-  const timeToMinutes = (time: string): number => {
+  const time24ToMinutes = (time: string): number => {
     const [hour, minute] = time.split(':').map(Number);
     return hour * 60 + minute;
   };
@@ -86,8 +86,8 @@ export function CalendarPanel({
   const isAppointmentInSlot = (apt: Lead, slotTime: string): boolean => {
     if (!apt.appointment_time) return false;
 
-    const aptStartMinutes = timeToMinutes(apt.appointment_time.slice(0, 5));
-    const slotStartMinutes = timeToMinutes(slotTime);
+    const aptStartMinutes = time24ToMinutes(apt.appointment_time.slice(0, 5));
+    const slotStartMinutes = time24ToMinutes(slotTime);
     const slotEndMinutes = slotStartMinutes + 15;
 
     return aptStartMinutes >= slotStartMinutes && aptStartMinutes < slotEndMinutes;

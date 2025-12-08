@@ -1,8 +1,10 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Search,
   Home,
@@ -155,6 +157,7 @@ const searchSuggestions = [
 
 export default function NotFound() {
   const pathname = usePathname();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -202,7 +205,7 @@ export default function NotFound() {
       // Navigate to search results or first suggestion
       const match = filteredSuggestions[0];
       if (match) {
-        window.location.href = match.href;
+        router.push(match.href);
       }
     }
   };

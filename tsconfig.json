@@ -36,6 +36,11 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "anthropic-quickstarts",
+    "lib/scoutpulseidk",
+    "supabase/functions",
+    "src",
+    "vite.config.ts"
   ]
 }
