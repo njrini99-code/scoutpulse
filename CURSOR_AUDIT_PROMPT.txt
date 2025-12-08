@@ -1,0 +1,170 @@
+SCOUTPULSE PRODUCTION-READY AUDIT & POLISH
+===========================================
+
+You are an expert code auditor and enhancer. Your mission: Make ScoutPulse production-ready.
+
+PROJECT PATH: /Users/ricknini/scoutpulse
+
+COMPREHENSIVE AUDIT REQUIRED:
+
+1. FEATURE COMPLETENESS
+   - Check ALL routes exist (/player/*, /coach/*, /hs-coach/*, /juco/*)
+   - Verify every feature from the vision is implemented
+   - Ensure all buttons/forms/interactions work
+   - Validate data flows and API integrations
+
+2. UI/UX COMPLETENESS
+   - Every card must have glassmorphism (backdrop-blur-2xl, rgba backgrounds, white/15 borders)
+   - All components need hover states with smooth animations
+   - Loading states (shimmer skeletons, NOT spinners)
+   - Empty states with helpful messaging
+   - Error states with retry options
+   - Consistent spacing and layout
+
+3. DESIGN SYSTEM (CRITICAL)
+   - Glassmorphism EVERYWHERE:
+     * backdrop-filter: blur(24px)
+     * background: rgba(255,255,255,0.05-0.15)
+     * border: 1px solid rgba(255,255,255,0.15)
+     * Soft shadows
+   - Animations:
+     * Hover: lift 4px + shadow increase
+     * Page transitions: smooth 300ms
+     * Numbers: count up on first display
+     * Success: confetti celebrations
+     * Drag & drop: physics-based trails
+     * Spring physics on all animations (react-spring)
+   - NO SPINNERS - use shimmer loading skeletons
+
+4. ROUTING & NAVIGATION
+   - All links work and go to correct pages
+   - Breadcrumbs functional
+   - Back buttons work
+   - 404 page exists
+   - Auth redirects work properly
+   - Role-based routing (player vs coach views)
+
+5. INTERACTIVITY
+   - All buttons clickable and functional
+   - All forms submit correctly
+   - All dropdowns open/close
+   - All modals open/close
+   - Drag & drop works (where applicable)
+   - Search functions properly
+   - Filters apply correctly
+   - Multi-select works
+
+6. ERROR HANDLING
+   - Try/catch on all async operations
+   - Error boundaries exist
+   - Network error handling
+   - Form validation with clear messages
+   - Graceful degradation when data missing
+   - No unhandled promise rejections
+   - No console errors
+
+7. PERFORMANCE
+   - Page loads < 2 seconds
+   - 60fps animations
+   - Images optimized and lazy loaded
+   - Code splitting by route
+   - Heavy lists virtualized
+   - No unnecessary re-renders
+   - Proper memoization
+
+8. ACCESSIBILITY (WCAG AA)
+   - Keyboard navigation works everywhere
+   - Tab order makes sense
+   - Focus indicators visible (glass ring effect)
+   - ARIA labels on interactive elements
+   - Alt text on images
+   - Color contrast 7:1 minimum
+   - Screen reader support
+   - Respects prefers-reduced-motion
+
+9. MOBILE RESPONSIVENESS
+   - Works at 375px (mobile)
+   - Works at 768px (tablet)  
+   - Works at 1440px (desktop)
+   - Touch targets 48px minimum
+   - No horizontal scroll
+   - Forms usable on mobile
+   - Navigation adapted for mobile
+
+10. CODE QUALITY
+    - Zero TypeScript errors
+    - Zero console errors/warnings
+    - No unused imports
+    - No TODO/FIXME comments left
+    - No hardcoded values (use env vars)
+    - Clean, readable code
+    - Proper TypeScript types everywhere
+
+EXECUTION INSTRUCTIONS:
+
+For each issue you find:
+
+1. List the issue with:
+   - PRIORITY: CRITICAL/HIGH/MEDIUM/LOW
+   - FILE: exact file path
+   - ISSUE: what's wrong
+   - FIX: what needs to be done
+
+2. Then IMPLEMENT the fix immediately in the code
+
+3. After each fix, verify:
+   - No new TypeScript errors
+   - No console errors
+   - Feature still works
+   - Looks better than before
+
+4. Continue systematically through ALL files in:
+   - /app directory (all pages)
+   - /components directory (all components)
+   - /lib directory (all utilities)
+
+QUALITY STANDARDS:
+
+✅ Every component has glassmorphism
+✅ Every interaction has smooth animation
+✅ Every state has proper UI (loading/error/empty/success)
+✅ Every form validates properly
+✅ Every route is accessible
+✅ Every feature works end-to-end
+✅ Zero console errors
+✅ Zero TypeScript errors
+✅ Mobile responsive everywhere
+✅ Keyboard accessible everywhere
+✅ Fast and performant
+
+DESIGN REFERENCE:
+
+Glass effect example:
+```tsx
+<div className="backdrop-blur-2xl bg-white/10 border border-white/15 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+  {/* content */}
+</div>
+```
+
+Animation example:
+```tsx
+import { motion } from 'framer-motion';
+
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+>
+  {/* content */}
+</motion.div>
+```
+
+START THE AUDIT NOW:
+
+1. Scan all files systematically
+2. Create a comprehensive issues list
+3. Fix issues in priority order (CRITICAL → HIGH → MEDIUM → LOW)
+4. Test after each fix
+5. Report progress after every 5 fixes
+
+Ready? Begin the production-ready audit and polish of ScoutPulse!

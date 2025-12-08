@@ -1,0 +1,439 @@
+import { createClient } from '@supabase/supabase-js';
+import Redis from 'ioredis';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// Redis client for caching
+const redis = new Redis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379'),
+  password: process.env.REDIS_PASSWORD,
+  retryDelayOnFailover: 100,
+  maxRetriesPerRequest: 3,
+});
+
+// In-memory fallback cache
+const memoryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+
+interface CacheConfig {
+  ttl: number; // Time to live in seconds
+  useRedis: boolean;
+}
+
+const DEFAULT_CACHE_CONFIG: CacheConfig = {
+  ttl: 300, // 5 minutes
+  useRedis: true,
+};
+
+export class DatabaseService {
+  private static instance: DatabaseService;
+
+  private constructor() {}
+
+  public static getInstance(): DatabaseService {
+    if (!DatabaseService.instance) {
+      DatabaseService.instance = new DatabaseService();
+    }
+    return DatabaseService.instance;
+  }
+
+  // Cache key generators
+  private getCacheKey(table: string, id?: string, query?: string): string {
+    const baseKey = `scoutpulse:${table}`;
+    if (id) return `${baseKey}:${id}`;
+    if (query) return `${baseKey}:query:${Buffer.from(query).toString('base64')}`;
+    return `${baseKey}:all`;
+  }
+
+  // Cache operations
+  private async setCache(
+    key: string, 
+    data: any, 
+    config: CacheConfig = DEFAULT_CACHE_CONFIG
+  ): Promise<void> {
+    try {
+      if (config.useRedis && redis.status === 'ready') {
+        await redis.setex(key, config.ttl, JSON.stringify(data));
+      } else {
+        // Fallback to memory cache
+        memoryCache.set(key, {
+          data,
+          timestamp: Date.now(),
+          ttl: config.ttl * 1000, // Convert to milliseconds
+        });
+      }
+    } catch (error) {
+      console.warn('Cache set failed:', error);
+    }
+  }
+
+  private async getCache(key: string): Promise<any | null> {
+    try {
+      // Try Redis first
+      if (redis.status === 'ready') {
+        const cached = await redis.get(key);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      }
+
+      // Fallback to memory cache
+      const memoryCached = memoryCache.get(key);
+      if (memoryCached) {
+        const isExpired = Date.now() - memoryCached.timestamp > memoryCached.ttl;
+        if (!isExpired) {
+          return memoryCached.data;
+        } else {
+          memoryCache.delete(key);
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.warn('Cache get failed:', error);
+      return null;
+    }
+  }
+
+  private async invalidateCache(pattern: string): Promise<void> {
+    try {
+      if (redis.status === 'ready') {
+        const keys = await redis.keys(pattern);
+        if (keys.length > 0) {
+          await redis.del(...keys);
+        }
+      }
+
+      // Clear memory cache
+      for (const key of memoryCache.keys()) {
+        if (key.includes(pattern.replace('*', ''))) {
+          memoryCache.delete(key);
+        }
+      }
+    } catch (error) {
+      console.warn('Cache invalidation failed:', error);
+    }
+  }
+
+  // Scout operations
+  async getScout(id: string, useCache = true): Promise<any> {
+    const cacheKey = this.getCacheKey('scouts', id);
+    
+    if (useCache) {
+      const cached = await this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    const { data, error } = await supabase
+      .from('scouts')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    if (useCache && data) {
+      await this.setCache(cacheKey, data);
+    }
+
+    return data;
+  }
+
+  async getScouts(filters?: any, useCache = true): Promise<any[]> {
+    const filterString = filters ? JSON.stringify(filters) : 'all';
+    const cacheKey = this.getCacheKey('scouts', undefined, filterString);
+    
+    if (useCache) {
+      const cached = await this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    let query = supabase.from('scouts').select('*');
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        query = query.eq(key, value);
+      });
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    if (useCache && data) {
+      await this.setCache(cacheKey, data, { ttl: 180, useRedis: true });
+    }
+
+    return data || [];
+  }
+
+  async createScout(scoutData: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('scouts')
+      .insert(scoutData)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Invalidate scouts cache
+    await this.invalidateCache('scoutpulse:scouts:*');
+
+    return data;
+  }
+
+  async updateScout(id: string, updates: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('scouts')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Update cache and invalidate related caches
+    const cacheKey = this.getCacheKey('scouts', id);
+    await this.setCache(cacheKey, data);
+    await this.invalidateCache('scoutpulse:scouts:query:*');
+
+    return data;
+  }
+
+  // Player operations
+  async getPlayer(id: string, useCache = true): Promise<any> {
+    const cacheKey = this.getCacheKey('players', id);
+    
+    if (useCache) {
+      const cached = await this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    const { data, error } = await supabase
+      .from('players')
+      .select(`
+        *,
+        evaluations (*),
+        match_performances (*)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    if (useCache && data) {
+      await this.setCache(cacheKey, data, { ttl: 600, useRedis: true }); // 10 minutes for player data
+    }
+
+    return data;
+  }
+
+  async getPlayers(filters?: any, useCache = true): Promise<any[]> {
+    const filterString = filters ? JSON.stringify(filters) : 'all';
+    const cacheKey = this.getCacheKey('players', undefined, filterString);
+    
+    if (useCache) {
+      const cached = await this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    let query = supabase.from('players').select('*');
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          query = query.in(key, value);
+        } else {
+          query = query.eq(key, value);
+        }
+      });
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    if (useCache && data) {
+      await this.setCache(cacheKey, data, { ttl: 300, useRedis: true });
+    }
+
+    return data || [];
+  }
+
+  async createPlayer(playerData: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('players')
+      .insert(playerData)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Invalidate players cache
+    await this.invalidateCache('scoutpulse:players:*');
+
+    return data;
+  }
+
+  // Evaluation operations
+  async getEvaluations(playerId?: string, scoutId?: string, useCache = true): Promise<any[]> {
+    const filterKey = `player:${playerId}_scout:${scoutId}`;
+    const cacheKey = this.getCacheKey('evaluations', undefined, filterKey);
+    
+    if (useCache) {
+      const cached = await this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    let query = supabase.from('evaluations').select(`
+      *,
+      player:players(*),
+      scout:scouts(*)
+    `);
+
+    if (playerId) query = query.eq('player_id', playerId);
+    if (scoutId) query = query.eq('scout_id', scoutId);
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+    if (error) throw error;
+
+    if (useCache && data) {
+      await this.setCache(cacheKey, data, { ttl: 120, useRedis: true }); // 2 minutes for evaluations
+    }
+
+    return data || [];
+  }
+
+  async createEvaluation(evaluationData: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('evaluations')
+      .insert(evaluationData)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Invalidate related caches
+    await this.invalidateCache('scoutpulse:evaluations:*');
+    await this.invalidateCache(`scoutpulse:players:${evaluationData.player_id}`);
+
+    return data;
+  }
+
+  // Match operations
+  async getMatches(filters?: any, useCache = true): Promise<any[]> {
+    const filterString = filters ? JSON.stringify(filters) : 'all';
+    const cacheKey = this.getCacheKey('matches', undefined, filterString);
+    
+    if (useCache) {
+      const cached = await this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    let query = supabase.from('matches').select('*');
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        query = query.eq(key, value);
+      });
+    }
+
+    const { data, error } = await query.order('date', { ascending: false });
+    if (error) throw error;
+
+    if (useCache && data) {
+      await this.setCache(cacheKey, data, { ttl: 1800, useRedis: true }); // 30 minutes for matches
+    }
+
+    return data || [];
+  }
+
+  // Statistics and aggregations (heavily cached)
+  async getPlayerStats(playerId: string, useCache = true): Promise<any> {
+    const cacheKey = this.getCacheKey('player_stats', playerId);
+    
+    if (useCache) {
+      const cached = await this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    const { data, error } = await supabase
+      .rpc('get_player_statistics', { player_uuid: playerId });
+
+    if (error) throw error;
+
+    if (useCache && data) {
+      await this.setCache(cacheKey, data, { ttl: 900, useRedis: true }); // 15 minutes for stats
+    }
+
+    return data;
+  }
+
+  async getScoutingReport(playerId: string, useCache = true): Promise<any> {
+    const cacheKey = this.getCacheKey('scouting_report', playerId);
+    
+    if (useCache) {
+      const cached = await this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    const { data, error } = await supabase
+      .rpc('generate_scouting_report', { player_uuid: playerId });
+
+    if (error) throw error;
+
+    if (useCache && data) {
+      await this.setCache(cacheKey, data, { ttl: 3600, useRedis: true }); // 1 hour for reports
+    }
+
+    return data;
+  }
+
+  // Cache management
+  async clearCache(pattern?: string): Promise<void> {
+    const clearPattern = pattern || 'scoutpulse:*';
+    await this.invalidateCache(clearPattern);
+  }
+
+  async warmCache(): Promise<void> {
+    try {
+      // Warm up frequently accessed data
+      await Promise.all([
+        this.getScouts({}, true),
+        this.getPlayers({}, true),
+        this.getMatches({}, true),
+      ]);
+    } catch (error) {
+      console.warn('Cache warming failed:', error);
+    }
+  }
+
+  // Health check
+  async healthCheck(): Promise<{ supabase: boolean; redis: boolean; memory: boolean }> {
+    const health = {
+      supabase: false,
+      redis: false,
+      memory: true,
+    };
+
+    try {
+      const { data } = await supabase.from('scouts').select('id').limit(1);
+      health.supabase = !!data;
+    } catch (error) {
+      console.error('Supabase health check failed:', error);
+    }
+
+    try {
+      await redis.ping();
+      health.redis = redis.status === 'ready';
+    } catch (error) {
+      console.error('Redis health check failed:', error);
+    }
+
+    return health;
+  }
+}
+
+export const database = DatabaseService.getInstance();
+export default database;

@@ -139,6 +139,27 @@ export default function CollegeCoachDashboard() {
   const [loading, setLoading] = useState(true);
   const [watchlistStates, setWatchlistStates] = useState<Record<string, boolean>>({});
 
+  // Helper functions
+  function getTimeAgo(date: Date): string {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  }
+
+  function formatCampDate(date: string | Date | null): string {
+    if (!date) return 'TBD';
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   useEffect(() => {
     loadData();
   }, []);
@@ -311,15 +332,15 @@ export default function CollegeCoachDashboard() {
           const coachCamps = await getCoachCamps(coachId);
           const formattedCamps: Camp[] = coachCamps.map(camp => ({
             id: camp.id,
-            title: camp.title || camp.name || 'Camp',
-            date: formatCampDate(camp.event_date || camp.start_date),
-            location: `${camp.location_city || ''}, ${camp.location_state || ''}`.trim() || 'TBD',
-            attending: camp.registered_count || 0,
+            title: camp.name || 'Camp',
+            date: formatCampDate(camp.start_date),
+            location: camp.location || 'TBD',
+            attending: camp.registration_count || 0,
             capacity: camp.capacity || 0,
             interested: camp.interested_count || 0,
-            status: (camp.registered_count || 0) >= (camp.capacity || 0) ? 'full' : 
-                    (camp.registered_count || 0) >= (camp.capacity || 0) * 0.8 ? 'limited' : 'open',
-            image: camp.image_url || null,
+            status: (camp.registration_count || 0) >= (camp.capacity || 0) ? 'full' : 
+                    (camp.registration_count || 0) >= (camp.capacity || 0) * 0.8 ? 'limited' : 'open',
+            image: null, // CampEvent doesn't have image_url, can be added later
           }));
           setCamps(formattedCamps);
 
@@ -337,7 +358,7 @@ export default function CollegeCoachDashboard() {
   };
 
   const filteredActivities = useMemo(() => {
-    return MOCK_ACTIVITIES.filter((a) => {
+    return activities.filter((a) => {
       if (activityFilter === 'all') return true;
       if (activityFilter === 'followers') return a.type === 'follow';
       if (activityFilter === 'top5') return a.type === 'top5';
@@ -345,7 +366,7 @@ export default function CollegeCoachDashboard() {
       if (activityFilter === 'camps') return a.type === 'camp';
       return true;
     });
-  }, [activityFilter]);
+  }, [activities, activityFilter]);
 
   const profileCompletion = useMemo(() => {
     if (!coach) return 40;
@@ -544,23 +565,25 @@ export default function CollegeCoachDashboard() {
         >
           <motion.div variants={staggerItem as any}>
             <MetricCard
-            icon={<Eye className="w-5 h-5" strokeWidth={1.75} />}
-            value={stats.profileViews}
-            label="Profile Views"
-            trend={12}
-            trendDirection="up"
-            accentColor="#0EA5E9"
-            onClick={() => setActivityFilter('views')}
-          />
-          <MetricCard
-            icon={<UserPlus className="w-5 h-5" strokeWidth={1.75} />}
-            value={stats.newFollowers}
-            label="New Followers"
-            trend={8}
-            trendDirection="up"
-            accentColor="#22C55E"
-            onClick={() => setActivityFilter('followers')}
-          />
+              icon={<Eye className="w-5 h-5" strokeWidth={1.75} />}
+              value={stats.profileViews}
+              label="Profile Views"
+              trend={12}
+              trendDirection="up"
+              accentColor="#0EA5E9"
+              onClick={() => setActivityFilter('views')}
+            />
+          </motion.div>
+          <motion.div variants={staggerItem as any}>
+            <MetricCard
+              icon={<UserPlus className="w-5 h-5" strokeWidth={1.75} />}
+              value={stats.newFollowers}
+              label="New Followers"
+              trend={8}
+              trendDirection="up"
+              accentColor="#22C55E"
+              onClick={() => setActivityFilter('followers')}
+            />
           </motion.div>
           <motion.div variants={staggerItem as any}>
             <MetricCard

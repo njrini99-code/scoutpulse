@@ -1,0 +1,60 @@
+import { useState, useEffect } from 'react';
+
+interface DataState<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+}
+
+interface UseDataOptions {
+  refetchInterval?: number;
+  enabled?: boolean;
+}
+
+export function useData<T>(
+  fetcher: () => Promise<T>,
+  dependencies: unknown[] = [],
+  options: UseDataOptions = {}
+): DataState<T> & { refetch: () => void } {
+  const [state, setState] = useState<DataState<T>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const { refetchInterval, enabled = true } = options;
+
+  const fetchData = async () => {
+    if (!enabled) return;
+
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      const result = await fetcher();
+      setState({ data: result, loading: false, error: null });
+    } catch (error) {
+      setState({
+        data: null,
+        loading: false,
+        error: error instanceof Error ? error.message : 'An error occurred',
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+
+    if (refetchInterval && enabled) {
+      const interval = setInterval(fetchData, refetchInterval);
+      return () => clearInterval(interval);
+    }
+  }, [fetcher, enabled, refetchInterval, ...dependencies]);
+
+  const refetch = () => {
+    fetchData();
+  };
+
+  return {
+    ...state,
+    refetch,
+  };
+}

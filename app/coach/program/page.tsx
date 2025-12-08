@@ -35,6 +35,7 @@ import {
 import { toast } from 'sonner';
 import type { Coach } from '@/lib/types';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTheme } from '@/lib/theme-context';
 import { useRouter } from 'next/navigation';
 import { isDevMode, DEV_ENTITY_IDS } from '@/lib/dev-mode';
@@ -226,7 +227,7 @@ export default function CoachProgramPage() {
             <div className="relative group">
               <div className={`w-24 h-24 rounded-xl flex items-center justify-center border-4 shadow-xl ${isDark ? 'bg-slate-800 border-slate-900' : 'bg-white border-emerald-100'}`}>
                 {coach.logo_url ? (
-                  <img src={coach.logo_url} alt="Logo" className="w-full h-full object-cover rounded-lg" loading="lazy" />
+                  <Image src={coach.logo_url || '/placeholder-logo.png'} alt="Logo" width={120} height={120} className="w-full h-full object-cover rounded-lg" />
                 ) : (
                   <Building className={`w-12 h-12 ${isDark ? 'text-slate-500' : 'text-emerald-400'}`} />
                 )}

@@ -32,6 +32,7 @@ import {
 import type { Player } from '@/lib/types';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -628,7 +629,7 @@ export default function PublicPlayerProfilePage() {
                   <Card key={video.id} className="bg-white/5 backdrop-blur-sm border-white/10 overflow-hidden group hover:border-[#00C27A]/30 transition-colors">
                     <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 relative">
                       {video.thumbnail_url ? (
-                        <img
+                        <Image
                           src={video.thumbnail_url}
                           alt={video.title}
                           className="w-full h-full object-cover"

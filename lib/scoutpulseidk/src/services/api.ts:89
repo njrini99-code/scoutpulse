@@ -1,0 +1,149 @@
+import axios, { AxiosResponse, AxiosError } from 'axios';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+export interface Player {
+  id: string;
+  name: string;
+  position: string;
+  team: string;
+  age: number;
+  height: string;
+  weight: string;
+  stats: PlayerStats;
+  scouting_notes?: string[];
+  overall_rating?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlayerStats {
+  games_played: number;
+  goals: number;
+  assists: number;
+  yellow_cards: number;
+  red_cards: number;
+  minutes_played: number;
+  rating: number;
+}
+
+export interface ScoutingReport {
+  id: string;
+  player_id: string;
+  scout_id: string;
+  match_id?: string;
+  technical_rating: number;
+  physical_rating: number;
+  mental_rating: number;
+  overall_rating: number;
+  notes: string;
+  strengths: string[];
+  weaknesses: string[];
+  recommendation: 'reject' | 'monitor' | 'consider' | 'recommend' | 'priority';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Match {
+  id: string;
+  home_team: string;
+  away_team: string;
+  date: string;
+  venue: string;
+  competition: string;
+  status: 'scheduled' | 'live' | 'completed' | 'cancelled';
+}
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor for auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Player API methods
+export const playerApi = {
+  async getAll(): Promise<ApiResponse<Player[]>> {
+    try {
+      const response = await api.get<Player[]>('/players');
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      return {
+        success: false,
+        error: axiosError.message || 'Failed to fetch players',
+      };
+    }
+  },
+
+  async getById(id: string): Promise<ApiResponse<Player>> {
+    try {
+      const response = await api.get<Player>(`/players/${id}`);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      return {
+        success: false,
+        error: axiosError.message || 'Failed to fetch player',
+      };
+    }
+  },
+
+  async create(playerData: Omit<Player, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Player>> {
+    try {
+      const response = await api.post<Player>('/players', playerData);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      return {
+        success: false,
+        error: axiosError.message || 'Failed to create player',
+      };
+    }
+  },
+};
+
+export default api;

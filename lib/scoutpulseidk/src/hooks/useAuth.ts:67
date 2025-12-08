@@ -1,0 +1,209 @@
+import { useState, useEffect, useContext, createContext, ReactNode } from 'react';
+import { authService } from '../services/authService';
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'coach' | 'scout';
+  avatar?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  refreshToken: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshTimer, setRefreshTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const isAuthenticated = !!user;
+
+  const scheduleTokenRefresh = (expiresIn: number) => {
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
+    }
+
+    // Refresh token 5 minutes before expiration
+    const refreshTime = Math.max(0, (expiresIn * 1000) - (5 * 60 * 1000));
+    
+    const timer = setTimeout(async () => {
+      try {
+        await refreshToken();
+      } catch (error) {
+        console.error('Failed to refresh token:', error);
+        logout();
+      }
+    }, refreshTime);
+
+    setRefreshTimer(timer);
+  };
+
+  const refreshToken = async (): Promise<void> => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Token refresh failed');
+      }
+
+      const data = await response.json();
+      
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+      
+      // Schedule next refresh
+      scheduleTokenRefresh(data.expiresIn);
+      
+      // Update user data if provided
+      if (data.user) {
+        setUser(data.user);
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      throw error;
+    }
+  };
+
+  const login = async (email: string, password: string): Promise<void> => {
+    try {
+      setIsLoading(true);
+      const response = await authService.login(email, password);
+      
+      setUser(response.user);
+      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      
+      // Schedule automatic token refresh
+      scheduleTokenRefresh(response.expiresIn);
+    } catch (error) {
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
+      setRefreshTimer(null);
+    }
+  };
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const refreshTokenStored = localStorage.getItem('refreshToken');
+        
+        if (!token || !refreshTokenStored) {
+          setIsLoading(false);
+          return;
+        }
+
+        // Verify token validity
+        try {
+          const userResponse = await fetch('/api/auth/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            setUser(userData.user);
+            
+            // Schedule token refresh based on token expiration
+            const tokenExpiry = JSON.parse(atob(token.split('.')[1])).exp;
+            const currentTime = Math.floor(Date.now() / 1000);
+            const expiresIn = tokenExpiry - currentTime;
+            
+            if (expiresIn > 0) {
+              scheduleTokenRefresh(expiresIn);
+            } else {
+              // Token expired, try to refresh
+              await refreshToken();
+            }
+          } else {
+            // Token invalid, try to refresh
+            await refreshToken();
+          }
+        } catch (error) {
+          console.error('Auth initialization error:', error);
+          logout();
+        }
+      } catch (error) {
+        console.error('Failed to initialize auth:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      if (refreshTimer) {
+        clearTimeout(refreshTimer);
+      }
+    };
+  }, []);
+
+  // Add axios interceptor for automatic token refresh on 401 responses
+  useEffect(() => {
+    const requestInterceptor = authService.addRequestInterceptor();
+    const responseInterceptor = authService.addResponseInterceptor(refreshToken, logout);
+
+    return () => {
+      authService.removeInterceptor(requestInterceptor);
+      authService.removeInterceptor(responseInterceptor);
+    };
+  }, []);
+
+  const value: AuthContextType = {
+    user,
+    isLoading,
+    isAuthenticated,
+    login,
+    logout,
+    refreshToken,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export default useAuth;

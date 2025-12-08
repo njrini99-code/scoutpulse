@@ -32,6 +32,7 @@ import {
 import type { Player } from '@/lib/types';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import Image from 'next/image';
 import { D1Badge } from '@/components/ui/D1Badge';
 import { checkD1Standard, parseMetricValue } from '@/lib/constants/d1-benchmarks';
 

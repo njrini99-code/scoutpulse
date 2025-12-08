@@ -1,0 +1,53 @@
+export const DEBUG_LEVELS = {
+  ERROR: 0,
+  WARN: 1,
+  INFO: 2,
+  DEBUG: 3,
+} as const;
+
+type DebugLevel = typeof DEBUG_LEVELS[keyof typeof DEBUG_LEVELS];
+
+class DebugLogger {
+  private level: DebugLevel;
+  private isDevelopment: boolean;
+
+  constructor() {
+    this.isDevelopment = process.env.NODE_ENV === 'development';
+    this.level = this.isDevelopment ? DEBUG_LEVELS.DEBUG : DEBUG_LEVELS.ERROR;
+  }
+
+  error(message: string, ...args: any[]) {
+    if (this.level >= DEBUG_LEVELS.ERROR) {
+      console.error(`[ScoutPulse ERROR] ${message}`, ...args);
+    }
+  }
+
+  warn(message: string, ...args: any[]) {
+    if (this.isDevelopment && this.level >= DEBUG_LEVELS.WARN) {
+      console.warn(`[ScoutPulse WARN] ${message}`, ...args);
+    }
+  }
+
+  info(message: string, ...args: any[]) {
+    if (this.isDevelopment && this.level >= DEBUG_LEVELS.INFO) {
+      console.info(`[ScoutPulse INFO] ${message}`, ...args);
+    }
+  }
+
+  debug(message: string, ...args: any[]) {
+    if (this.isDevelopment && this.level >= DEBUG_LEVELS.DEBUG) {
+      console.debug(`[ScoutPulse DEBUG] ${message}`, ...args);
+    }
+  }
+
+  setLevel(level: DebugLevel) {
+    this.level = level;
+  }
+}
+
+export const debugLogger = new DebugLogger();
+
+export const debug = debugLogger.debug.bind(debugLogger);
+export const info = debugLogger.info.bind(debugLogger);
+export const warn = debugLogger.warn.bind(debugLogger);
+export const error = debugLogger.error.bind(debugLogger);

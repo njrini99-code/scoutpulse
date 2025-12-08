@@ -1,0 +1,220 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { BarChart3, Users, Target, TrendingUp, Calendar, MapPin } from 'lucide-react';
+import { API_CONFIG } from '../config/api';
+
+interface DashboardStats {
+  totalScouts: number;
+  activeProjects: number;
+  completedMissions: number;
+  averageScore: number;
+}
+
+interface RecentActivity {
+  id: string;
+  type: 'mission' | 'project' | 'achievement';
+  title: string;
+  description: string;
+  timestamp: string;
+  location?: string;
+}
+
+const Dashboard: React.FC = () => {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalScouts: 0,
+    activeProjects: 0,
+    completedMissions: 0,
+    averageScore: 0
+  });
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      const [statsResponse, activityResponse] = await Promise.all([
+        fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DASHBOARD.STATS}`, {
+          headers: API_CONFIG.DEFAULT_HEADERS,
+        }),
+        fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DASHBOARD.ACTIVITY}`, {
+          headers: API_CONFIG.DEFAULT_HEADERS,
+        })
+      ]);
+
+      if (statsResponse.ok && activityResponse.ok) {
+        const statsData = await statsResponse.json();
+        const activityData = await activityResponse.json();
+        
+        setStats(statsData);
+        setRecentActivity(activityData);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const StatCard: React.FC<{
+    icon: React.ReactNode;
+    title: string;
+    value: number;
+    suffix?: string;
+    color: string;
+  }> = ({ icon, title, value, suffix = '', color }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="backdrop-blur-2xl bg-white/10 border border-white/15 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300"
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-white/70 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-white">
+            {loading ? '...' : value}
+            <span className="text-lg text-white/70">{suffix}</span>
+          </p>
+        </div>
+        <div className={`p-3 rounded-xl ${color}`}>
+          {icon}
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  const ActivityItem: React.FC<{ activity: RecentActivity }> = ({ activity }) => (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="flex items-start space-x-4 p-4 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300"
+    >
+      <div className="flex-shrink-0 mt-1">
+        {activity.type === 'mission' && (
+          <div className="p-2 bg-blue-500/20 rounded-lg">
+            <Target className="h-4 w-4 text-blue-400" />
+          </div>
+        )}
+        {activity.type === 'project' && (
+          <div className="p-2 bg-green-500/20 rounded-lg">
+            <BarChart3 className="h-4 w-4 text-green-400" />
+          </div>
+        )}
+        {activity.type === 'achievement' && (
+          <div className="p-2 bg-yellow-500/20 rounded-lg">
+            <TrendingUp className="h-4 w-4 text-yellow-400" />
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-semibold text-white mb-1">{activity.title}</h4>
+        <p className="text-xs text-white/70 mb-2">{activity.description}</p>
+        <div className="flex items-center space-x-4 text-xs text-white/50">
+          <div className="flex items-center space-x-1">
+            <Calendar className="h-3 w-3" />
+            <span>{new Date(activity.timestamp).toLocaleDateString()}</span>
+          </div>
+          {activity.location && (
+            <div className="flex items-center space-x-1">
+              <MapPin className="h-3 w-3" />
+              <span>{activity.location}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  return (
+    <div className="min-h-screen p-6">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-7xl mx-auto"
+      >
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+          <p className="text-white/70">Welcome back to ScoutPulse</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            icon={<Users className="h-6 w-6 text-blue-400" />}
+            title="Total Scouts"
+            value={stats.totalScouts}
+            color="bg-blue-500/20"
+          />
+          <StatCard
+            icon={<BarChart3 className="h-6 w-6 text-green-400" />}
+            title="Active Projects"
+            value={stats.activeProjects}
+            color="bg-green-500/20"
+          />
+          <StatCard
+            icon={<Target className="h-6 w-6 text-purple-400" />}
+            title="Completed Missions"
+            value={stats.completedMissions}
+            color="bg-purple-500/20"
+          />
+          <StatCard
+            icon={<TrendingUp className="h-6 w-6 text-yellow-400" />}
+            title="Average Score"
+            value={stats.averageScore}
+            suffix="%"
+            color="bg-yellow-500/20"
+          />
+        </div>
+
+        {/* Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="backdrop-blur-2xl bg-white/10 border border-white/15 rounded-2xl p-6"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-white">Recent Activity</h2>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors duration-200"
+            >
+              View All
+            </motion.button>
+          </div>
+          
+          <div className="space-y-4">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/30"></div>
+              </div>
+            ) : recentActivity.length > 0 ? (
+              recentActivity.map((activity, index) => (
+                <motion.div
+                  key={activity.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <ActivityItem activity={activity} />
+                </motion.div>
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-white/50">No recent activity</p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Dashboard;

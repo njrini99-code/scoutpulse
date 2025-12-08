@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../scoutpulse"
+		},
+		{
+			"path": "scoutpulse"
+		},
+		{
+			"path": "scoutpulse/scoutpulse"
+		}
+	],
+	"settings": {}
+}
