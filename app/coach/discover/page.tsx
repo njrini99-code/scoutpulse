@@ -14,7 +14,6 @@ import {
   Star,
   User,
   Target,
-  Loader2,
   ChevronRight,
   MessageSquare,
   TrendingUp,
@@ -68,7 +67,11 @@ export default function CoachDiscoverPage() {
     verifiedOnly: false,
   });
   const [trendingPlayers, setTrendingPlayers] = useState<Player[]>([]);
-  const [aiMatches, setAiMatches] = useState<any[]>([]);
+  const [aiMatches, setAiMatches] = useState<Array<{
+    player: Player;
+    matchScore: number;
+    reasons: string[];
+  }>>([]);
 
   useEffect(() => {
     loadData();
@@ -295,7 +298,7 @@ export default function CoachDiscoverPage() {
                     <CardContent>
                       {loading ? (
                         <div className="flex items-center justify-center py-20">
-                          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                          <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
                         </div>
                       ) : players.length === 0 ? (
                         <div className="text-center py-12 text-slate-400">
@@ -508,7 +511,7 @@ export default function CoachDiscoverPage() {
 
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                          <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
               </div>
             ) : (
               <div className="space-y-4">
@@ -576,7 +579,7 @@ export default function CoachDiscoverPage() {
 
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                          <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

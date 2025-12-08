@@ -180,7 +180,7 @@ export default function CollegeCoachCalendarPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+          <div className="w-6 h-6 bg-emerald-500/20 rounded animate-pulse" />
           <p className="text-sm text-slate-500">Loading calendar...</p>
         </div>
       </div>

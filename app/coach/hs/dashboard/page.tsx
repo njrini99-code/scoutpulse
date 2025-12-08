@@ -32,7 +32,7 @@ import { createClient } from '@/lib/supabase/client';
 import { isDevMode, DEV_ENTITY_IDS } from '@/lib/dev-mode';
 import type { Coach } from '@/lib/types';
 import { getTeamForOwner, getTeamRoster, getTeamSchedule, type Team, type TeamMember, type ScheduleEvent } from '@/lib/queries/team';
-import { getConversationsForCoach } from '@/lib/api/messaging/getConversationsForCoach';
+import { getConversationsForCoach, type ConversationListItem } from '@/lib/api/messaging/getConversationsForCoach';
 import { CoachDashboardSkeleton } from '@/components/ui/loading-state';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -61,16 +61,6 @@ function useCountUp(end: number, duration = 1500) {
 // ═══════════════════════════════════════════════════════════════════════════
 // Main Component
 // ═══════════════════════════════════════════════════════════════════════════
-interface Conversation {
-  conversationId: string;
-  title: string;
-  lastMessageSnippet: string | null;
-  lastMessageAt: string | null;
-  unreadCount: number;
-  playerId: string;
-  playerName: string;
-  playerAvatar: string | null;
-}
 
 export default function HsCoachOverviewPage() {
   const router = useRouter();
@@ -78,7 +68,7 @@ export default function HsCoachOverviewPage() {
   const [team, setTeam] = useState<Team | null>(null);
   const [roster, setRoster] = useState<TeamMember[]>([]);
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversations, setConversations] = useState<ConversationListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

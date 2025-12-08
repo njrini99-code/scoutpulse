@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
+import { logError } from '@/lib/utils/errorLogger';
 import {
   ArrowLeft,
   User,
@@ -403,7 +404,7 @@ export default function LoginPage() {
         }, 1000);
       }
     } catch (err) {
-      console.error('Login error:', err);
+      logError(err, { component: 'LoginPage', action: 'handleSubmit' });
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       
       setErrors({ general: errorMessage });
@@ -616,7 +617,7 @@ export default function LoginPage() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <div className="w-5 h-5 bg-white/20 rounded animate-pulse" />
                       Signing in...
                     </>
                   ) : (
@@ -679,7 +680,7 @@ export default function LoginPage() {
                           <p className="text-xs text-slate-400">{account.description}</p>
                         </div>
                         {isDevLoading && (
-                          <Loader2 className="w-5 h-5 animate-spin text-white" />
+                          <div className="w-5 h-5 bg-white/20 rounded animate-pulse" />
                         )}
                       </button>
                     );

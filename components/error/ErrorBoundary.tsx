@@ -13,7 +13,6 @@ import {
   ChevronUp,
   ExternalLink,
   MessageSquare,
-  Loader2,
 } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -148,9 +147,11 @@ export function useErrorHandler() {
   const context = useContext(ErrorContext);
   
   const captureError = useCallback((error: Error, context?: Record<string, unknown>) => {
-    console.error('[ErrorBoundary] Captured error:', error, context);
-    if (context) {
-      console.error('[ErrorBoundary] Context:', context);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[ErrorBoundary] Captured error:', error, context);
+      if (context) {
+        console.error('[ErrorBoundary] Context:', context);
+      }
     }
   }, []);
 
@@ -287,7 +288,9 @@ Time: ${new Date().toISOString()}
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy error:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to copy error:', err);
+      }
     }
   };
 
@@ -298,7 +301,9 @@ Time: ${new Date().toISOString()}
       await onReport();
       setReported(true);
     } catch (err) {
-      console.error('Failed to report error:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to report error:', err);
+      }
     } finally {
       setReporting(false);
     }
@@ -540,9 +545,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // Update state with error info
     this.setState({ errorInfo });
 
-    // Log error
-    console.error('[ErrorBoundary] Caught error:', error);
-    console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
+    // Log error (using logError utility if available)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[ErrorBoundary] Caught error:', error);
+      console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
+    }
 
     // Call onError callback
     this.props.onError?.(error, errorInfo);
@@ -565,7 +572,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     try {
       await reportingService.report(this.createErrorReport(error, errorInfo));
     } catch (err) {
-      console.error('[ErrorBoundary] Failed to report error:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[ErrorBoundary] Failed to report error:', err);
+      }
     }
   };
 
@@ -660,7 +669,9 @@ export function ErrorBoundaryProvider({
   onError,
 }: ErrorBoundaryProviderProps) {
   const captureError = useCallback((error: Error, context?: Record<string, unknown>) => {
-    console.error('[ErrorBoundary] Manual capture:', error, context);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[ErrorBoundary] Manual capture:', error, context);
+    }
     
     if (reportingService) {
       reportingService.report({
@@ -678,7 +689,9 @@ export function ErrorBoundaryProvider({
 
   const reportError = useCallback(async (error: Error, context?: Record<string, unknown>) => {
     if (!reportingService) {
-      console.warn('[ErrorBoundary] No reporting service configured');
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[ErrorBoundary] No reporting service configured');
+      }
       return;
     }
 

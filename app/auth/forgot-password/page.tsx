@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { ArrowLeft, Loader2, Mail, CheckCircle } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
@@ -38,7 +39,7 @@ export default function ForgotPasswordPage() {
       setSent(true);
       toast.success('Password reset email sent!');
     } catch (error) {
-      console.error('Password reset error:', error);
+      logError(error, { component: 'ForgotPasswordPage', action: 'handleSubmit' });
       toast.error('An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -123,7 +124,7 @@ export default function ForgotPasswordPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" />
                   Sending...
                 </>
               ) : (

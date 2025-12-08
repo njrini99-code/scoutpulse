@@ -22,7 +22,6 @@ import {
   Edit,
   Plus,
   ChevronRight,
-  Loader2,
   MapPin,
   Clock,
   Star,
@@ -255,7 +254,7 @@ export default function ShowcaseCoachDashboard() {
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-        <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+        <div className="w-8 h-8 bg-violet-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -350,7 +349,7 @@ export default function ShowcaseCoachDashboard() {
                   <Users className="w-4 h-4" />
                   {roster.length} Players
                 </span>
-                {coach?.age_groups?.length > 0 && (
+                {coach && coach.age_groups && coach.age_groups.length > 0 && (
                   <span className="flex items-center gap-1">
                     <Zap className="w-4 h-4" />
                     {coach.age_groups.join(', ')}

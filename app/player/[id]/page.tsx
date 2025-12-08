@@ -19,7 +19,6 @@ import {
   Ruler,
   Calendar,
   MapPin,
-  Loader2,
   Share2,
   Target,
   Trophy,
@@ -158,9 +157,15 @@ export default function PublicPlayerProfilePage() {
     if (videosResult.data) setVideos(videosResult.data);
     if (achievementsResult.data) setAchievements(achievementsResult.data);
     if (evaluationsResult.data) {
-      setEvaluations(evaluationsResult.data.map((e: { id: string; rating: number; notes: string | null; created_at: string }) => ({
-        ...e,
-        evaluator: e.coaches
+      setEvaluations(evaluationsResult.data.map((e: any) => ({
+        id: e.id,
+        eval_date: e.eval_date,
+        overall_grade: e.overall_grade,
+        strengths: e.strengths,
+        evaluator: e.coaches ? {
+          full_name: e.coaches.full_name || null,
+          program_name: e.coaches.program_name || null,
+        } : undefined,
       })));
     }
 
@@ -321,7 +326,7 @@ export default function PublicPlayerProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0A3B2E] via-[#0B0D0F] to-[#0B0D0F] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#00C27A] animate-spin" />
+        <div className="w-8 h-8 bg-[#00C27A]/20 rounded animate-pulse" />
       </div>
     );
   }

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { useCurrentHighSchoolOrg } from '@/lib/hooks/useCurrentHighSchoolOrg';
 import { useCurrentCoach } from '@/lib/hooks/useCurrentCoach';
 import { useHighSchoolTeams } from '@/lib/hooks/useHighSchoolTeams';
@@ -26,8 +27,21 @@ export default function HsCoachRosterPage() {
 
   useEffect(() => {
     if (!org?.id) return;
-    setLoading(true);
-    getHighSchoolRoster(org.id, filters).then(setPlayers).finally(() => setLoading(false));
+    
+    const loadRoster = async () => {
+      setLoading(true);
+      try {
+        const rosterData = await getHighSchoolRoster(org.id, filters);
+        setPlayers(rosterData);
+      } catch (error) {
+        logError(error, { component: 'HsCoachRosterPage', action: 'loadRoster' });
+        toast.error('Failed to load roster');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadRoster();
   }, [org?.id, filters]);
 
   const selectedPlayers = useMemo(
@@ -44,7 +58,7 @@ export default function HsCoachRosterPage() {
   if (loadingOrg) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

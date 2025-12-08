@@ -140,7 +140,7 @@ export default function PlayerTeamPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0b1720] via-[#0f172a] to-[#f4f7fb] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+          <div className="w-8 h-8 bg-blue-400/20 rounded animate-pulse" />
           <p className="text-white/60 text-sm">Loading team...</p>
         </div>
       </div>

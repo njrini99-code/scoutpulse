@@ -35,7 +35,6 @@ import {
   Send,
   Clock,
   ChevronRight,
-  Loader2,
   TrendingUp,
   TrendingDown,
   Plus,

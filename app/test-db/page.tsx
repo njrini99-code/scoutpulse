@@ -50,7 +50,7 @@ export default function TestDBPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
+          <div className="w-8 h-8 bg-blue-500/20 rounded animate-pulse mx-auto" />
           <p className="text-slate-400">Testing database connection...</p>
         </div>
       </div>

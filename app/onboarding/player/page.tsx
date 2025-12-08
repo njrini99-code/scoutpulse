@@ -15,10 +15,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { 
   ArrowLeft, 
   ArrowRight, 
-  Loader2, 
   MapPin, 
   Ruler, 
   Target,
@@ -120,7 +120,25 @@ export default function PlayerOnboarding() {
         return;
       }
 
-      const updateData: any = {
+      const updateData: Partial<{
+        grad_year: number | null;
+        high_school_name: string | null;
+        high_school_city: string | null;
+        high_school_state: string | null;
+        showcase_team_name: string | null;
+        height_feet: number | null;
+        height_inches: number | null;
+        weight_lbs: number | null;
+        primary_position: string | null;
+        secondary_position: string | null;
+        throws: string | null;
+        bats: string | null;
+        perfect_game_url: string | null;
+        twitter_url: string | null;
+        primary_goal: string | null;
+        onboarding_completed: boolean;
+        onboarding_step: number;
+      }> = {
         grad_year: formData.grad_year ? parseInt(formData.grad_year) : null,
         high_school_name: formData.high_school_name || null,
         high_school_city: formData.high_school_city || null,
@@ -147,7 +165,7 @@ export default function PlayerOnboarding() {
 
       if (error) {
         toast.error('Error saving profile');
-        console.error(error);
+        logError(error, { component: 'PlayerOnboarding', action: 'handleSubmit' });
         return;
       }
 
@@ -156,7 +174,7 @@ export default function PlayerOnboarding() {
         router.push('/player');
       }, 2000);
     } catch (error) {
-      console.error('Onboarding error:', error);
+      logError(error, { component: 'PlayerOnboarding', action: 'handleSubmit', metadata: { unexpected: true } });
       toast.error('An error occurred');
     } finally {
       setSaving(false);
@@ -166,7 +184,7 @@ export default function PlayerOnboarding() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <div className="w-8 h-8 bg-blue-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -433,6 +451,8 @@ export default function PlayerOnboarding() {
                       key={goal}
                       type="button"
                       onClick={() => setFormData({ ...formData, primary_goal: goal })}
+                      aria-label={`Select goal: ${goal}`}
+                      aria-pressed={formData.primary_goal === goal}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${
                         formData.primary_goal === goal
                           ? 'border-blue-500 bg-blue-500/10'
@@ -503,7 +523,7 @@ export default function PlayerOnboarding() {
             >
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" />
                   Saving...
                 </>
               ) : (

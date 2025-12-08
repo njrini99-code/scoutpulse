@@ -288,7 +288,7 @@ export default function JUCOCoachDashboard() {
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-        <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+        <div className="w-8 h-8 bg-cyan-500/20 rounded animate-pulse" />
       </div>
     );
   }

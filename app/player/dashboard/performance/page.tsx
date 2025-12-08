@@ -6,7 +6,8 @@ import { PlayerPerformanceSummaryTiles } from '@/components/player/dashboard/Per
 import { PlayerPerformanceCharts } from '@/components/player/dashboard/Performance/player-performance-charts';
 import { PlayerPerformanceGamesTable } from '@/components/player/dashboard/Performance/player-performance-games-table';
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { Card } from '@/components/ui/card';
 import { getPlayerStatsSeries, type PerformanceFilters, type PlayerStatsResponse } from '@/lib/api/player/getPlayerStatsSeries';
 
@@ -21,14 +22,27 @@ export default function PlayerPerformancePage() {
 
   useEffect(() => {
     if (!player) return;
-    setLoading(true);
-    getPlayerStatsSeries(player.id, filters).then(setData).finally(() => setLoading(false));
+    
+    const loadStats = async () => {
+      setLoading(true);
+      try {
+        const statsData = await getPlayerStatsSeries(player.id, filters);
+        setData(statsData);
+      } catch (error) {
+        logError(error, { component: 'PlayerPerformancePage', action: 'loadStats' });
+        toast.error('Failed to load performance data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadStats();
   }, [player, filters]);
 
   if (loadingPlayer) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

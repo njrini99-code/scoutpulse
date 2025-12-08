@@ -13,7 +13,6 @@ import {
   MapPin, 
   ChevronDown, 
   ChevronUp, 
-  Loader2,
   X,
   User,
   Building,
@@ -307,7 +306,10 @@ export default function CollegeCoachDiscoverPage() {
   const handleScoutCardAddNote = async (playerId: string, note: string) => {
     // TODO: Implement note adding in database
     toast.success('Note saved');
-    console.log('Add note:', playerId, note);
+    // Note: Using console.log for development debugging of TODO feature
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Add note:', playerId, note);
+    }
   };
 
   const handleToggleWatchlist = async (playerId: string, isOnWatchlist: boolean) => {
@@ -680,7 +682,7 @@ export default function CollegeCoachDiscoverPage() {
           <div className="p-5">
             {loading ? (
               <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
+                <div className="w-5 h-5 bg-emerald-500/20 rounded animate-pulse" />
               </div>
             ) : !selectedState ? (
               <div className="text-center py-16">

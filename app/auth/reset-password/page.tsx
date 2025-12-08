@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { ArrowLeft, Loader2, Lock, CheckCircle } from 'lucide-react';
 
 export default function ResetPasswordPage() {
@@ -30,7 +31,7 @@ export default function ResetPasswordPage() {
           setError('Invalid or expired reset link. Please request a new one.');
         }
       } catch (err) {
-        console.error('Session check error:', err);
+        logError(err, { component: 'ResetPasswordPage', action: 'checkSession' });
         setError('Something went wrong. Please try again.');
       } finally {
         setChecking(false);
@@ -79,7 +80,7 @@ export default function ResetPasswordPage() {
         router.push('/auth/login');
       }, 2000);
     } catch (err) {
-      console.error('Password update error:', err);
+      logError(err, { component: 'ResetPasswordPage', action: 'handleSubmit' });
       toast.error('An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -89,7 +90,7 @@ export default function ResetPasswordPage() {
   if (checking) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <div className="w-8 h-8 bg-blue-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -127,7 +128,7 @@ export default function ResetPasswordPage() {
             <p className="text-slate-400 mb-6">
               Your password has been reset successfully. Redirecting you to login...
             </p>
-            <Loader2 className="w-6 h-6 text-blue-500 animate-spin mx-auto" />
+            <div className="w-6 h-6 bg-blue-500/20 rounded animate-pulse mx-auto" />
           </div>
         </div>
       </div>
@@ -186,7 +187,7 @@ export default function ResetPasswordPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" />
                   Updating...
                 </>
               ) : (

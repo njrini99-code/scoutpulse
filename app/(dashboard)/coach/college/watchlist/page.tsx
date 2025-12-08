@@ -30,7 +30,6 @@ import {
   Square,
   Download,
   X,
-  Loader2,
   SortAsc,
   SortDesc,
   StickyNote,
@@ -1172,7 +1171,7 @@ export default function CollegeCoachWatchlistPage() {
                 disabled={bulkActionLoading}
               >
                 {bulkActionLoading ? (
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  <div className="w-3.5 h-3.5 bg-white/20 rounded animate-pulse mr-1.5" />
                 ) : (
                   <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                 )}
@@ -1311,7 +1310,7 @@ export default function CollegeCoachWatchlistPage() {
                 Cancel
               </Button>
               <Button onClick={handleSaveNotes} disabled={savingNotes} className="bg-emerald-500 hover:bg-emerald-600">
-                {savingNotes ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                {savingNotes ? <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                 Save Notes
               </Button>
             </DialogFooter>
@@ -1569,6 +1568,7 @@ function RecruitBoardCard({ recruit, stage, onView, onMessage, onRemove, onUpdat
         {recruit.notes && (
           <button 
             onClick={(e) => { e.stopPropagation(); onOpenNotes(); }}
+            aria-label="View notes"
             className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] flex items-center gap-1"
           >
             <StickyNote className="w-3 h-3" />
@@ -1702,7 +1702,13 @@ function RecruitListRow({ recruit, isSelected, onToggleSelect, onView, onMessage
         </Select>
       </td>
       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={onOpenNotes}>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-7 text-xs" 
+          onClick={onOpenNotes}
+          aria-label={recruit.notes ? 'View notes' : 'Add notes'}
+        >
           <StickyNote className="w-3.5 h-3.5 mr-1" />
           {recruit.notes ? 'View' : 'Add'}
         </Button>

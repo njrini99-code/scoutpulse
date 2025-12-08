@@ -121,6 +121,8 @@ export function AddMetricModal({ playerId, onSuccess, trigger }: AddMetricModalP
                   key={metric.label}
                   type="button"
                   onClick={() => handleQuickSelect(metric)}
+                  aria-label={`Select ${metric.label} metric`}
+                  aria-pressed={formData.metric_label === metric.label}
                   className={`px-2 py-1 text-xs rounded-md transition-colors ${
                     formData.metric_label === metric.label
                       ? 'bg-emerald-500 text-white'

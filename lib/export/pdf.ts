@@ -43,7 +43,7 @@ export function generatePlayerPDFContent(data: ExportPlayerData): string {
     ? `${player.height_feet}'${player.height_inches}"` 
     : 'N/A';
   const weight = player.weight_lbs ? `${player.weight_lbs} lbs` : 'N/A';
-  const location = [player.city, player.state].filter(Boolean).join(', ') || 'N/A';
+  const location = [player.high_school_city, player.high_school_state].filter(Boolean).join(', ') || 'N/A';
   const hsName = player.high_school_name || 'N/A';
   const bats = player.bats || 'N/A';
   const throws = player.throws || 'N/A';
@@ -406,11 +406,11 @@ export function generatePlayerPDFContent(data: ExportPlayerData): string {
   </div>
   ` : ''}
 
-  ${player.about ? `
+  ${player.about_me ? `
   <!-- About -->
   <div class="section">
     <div class="section-title">About</div>
-    <p class="about-text">${player.about}</p>
+    <p class="about-text">${player.about_me}</p>
   </div>
   ` : ''}
 
@@ -421,25 +421,25 @@ export function generatePlayerPDFContent(data: ExportPlayerData): string {
       <div class="contact-row">
         <div class="contact-item">
           <div class="info-label">Email</div>
-          <div>${player.email_contact || 'Not provided'}</div>
+          <div>${(player as any).email_contact || 'Not provided'}</div>
         </div>
         <div class="contact-item">
           <div class="info-label">Phone</div>
-          <div>${player.phone_contact || 'Not provided'}</div>
+          <div>${(player as any).phone_contact || 'Not provided'}</div>
         </div>
       </div>
-      ${player.twitter_handle || player.instagram_handle ? `
+      ${player.twitter_url || (player as any).instagram_url ? `
       <div class="contact-row" style="margin-top: 12px;">
-        ${player.twitter_handle ? `
+        ${player.twitter_url ? `
         <div class="contact-item">
           <div class="info-label">Twitter</div>
-          <div>@${player.twitter_handle}</div>
+          <div>${player.twitter_url}</div>
         </div>
         ` : ''}
-        ${player.instagram_handle ? `
+        ${(player as any).instagram_url ? `
         <div class="contact-item">
           <div class="info-label">Instagram</div>
-          <div>@${player.instagram_handle}</div>
+          <div>${(player as any).instagram_url}</div>
         </div>
         ` : ''}
       </div>

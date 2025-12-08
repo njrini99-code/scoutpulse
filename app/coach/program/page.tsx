@@ -199,7 +199,7 @@ export default function CoachProgramPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -218,7 +218,7 @@ export default function CoachProgramPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-900/20 via-transparent to-transparent"></div>
         {coach.banner_url && (
           <div className="absolute inset-0">
-            <img src={coach.banner_url} alt="Banner" className="w-full h-full object-cover opacity-30" loading="lazy" />
+            <Image src={coach.banner_url} alt="Banner" fill className="object-cover opacity-30" />
           </div>
         )}
         <div className="relative max-w-7xl mx-auto px-6 py-12">
@@ -298,7 +298,7 @@ export default function CoachProgramPage() {
                     disabled={saving}
                     className={`gap-2 ${buttonStyles.primary}`}
                   >
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    {saving ? <div className="w-4 h-4 bg-white/20 rounded animate-pulse" /> : <Save className="w-4 h-4" />}
                     Save Changes
                   </Button>
                   <Button 

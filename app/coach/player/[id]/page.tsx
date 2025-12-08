@@ -25,7 +25,6 @@ import {
   Eye,
   Calendar,
   MapPin,
-  Loader2,
   ArrowLeft,
   Edit,
   Download,
@@ -477,7 +476,7 @@ export default function CoachPlayerProfilePage() {
   if (loading) {
     return (
       <div className={`flex items-center justify-center min-h-[50vh] ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
       </div>
     );
   }

@@ -4,7 +4,8 @@ import { useCurrentPlayer } from '@/lib/hooks/useCurrentPlayer';
 import { PlayerEventsFilters } from '@/components/player/dashboard/Events/player-events-filters';
 import { PlayerEventsTimeline } from '@/components/player/dashboard/Events/player-events-timeline';
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { Card } from '@/components/ui/card';
 import { getPlayerEventsTimeline, type EventFilter, type PlayerEventTimelineItem } from '@/lib/api/player/getPlayerEventsTimeline';
 
@@ -16,14 +17,27 @@ export default function PlayerEventsPage() {
 
   useEffect(() => {
     if (!player) return;
-    setLoading(true);
-    getPlayerEventsTimeline(player.id, filters).then(setItems).finally(() => setLoading(false));
+    
+    const loadEvents = async () => {
+      setLoading(true);
+      try {
+        const eventsData = await getPlayerEventsTimeline(player.id, filters);
+        setItems(eventsData);
+      } catch (error) {
+        logError(error, { component: 'PlayerEventsPage', action: 'loadEvents' });
+        toast.error('Failed to load events');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadEvents();
   }, [player, filters]);
 
   if (loadingPlayer) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

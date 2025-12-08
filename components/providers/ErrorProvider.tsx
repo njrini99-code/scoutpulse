@@ -18,11 +18,15 @@ export function ErrorProvider({ children }: ErrorProviderProps) {
       maxRetries={3}
       onError={(error) => {
         // Optional: Send to analytics
-        console.log('[ErrorProvider] Error reported:', error.error.message);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[ErrorProvider] Error reported:', error.error.message);
+        }
       }}
       onRecovery={(errorId, action) => {
         // Optional: Track recovery actions
-        console.log('[ErrorProvider] Recovery action:', action, 'for error:', errorId);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[ErrorProvider] Recovery action:', action, 'for error:', errorId);
+        }
       }}
     >
       <AppErrorBoundary>

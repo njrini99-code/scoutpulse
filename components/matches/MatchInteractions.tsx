@@ -485,6 +485,7 @@ function ActionButton({ icon: Icon, label, onClick, variant = 'default', disable
         if (!disabled && !loading) onClick();
       }}
       disabled={disabled || loading}
+      aria-label={label}
       title={label}
       className={cn(
         'p-2 rounded-lg transition-all action-btn',

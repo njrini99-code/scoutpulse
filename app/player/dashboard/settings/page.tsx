@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useCurrentPlayer } from '@/lib/hooks/useCurrentPlayer';
-import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { Card } from '@/components/ui/card';
 import { PlayerProfileForm } from '@/components/player/dashboard/Settings/player-profile-form';
 import { PlayerVisibilitySettings } from '@/components/player/dashboard/Settings/player-visibility-settings';
@@ -17,14 +18,27 @@ export default function PlayerSettingsPage() {
 
   useEffect(() => {
     if (!player) return;
-    setLoading(true);
-    getPlayerSettings(player.id).then(setSettings).finally(() => setLoading(false));
+    
+    const loadSettings = async () => {
+      setLoading(true);
+      try {
+        const settingsData = await getPlayerSettings(player.id);
+        setSettings(settingsData);
+      } catch (error) {
+        logError(error, { component: 'PlayerSettingsPage', action: 'loadSettings' });
+        toast.error('Failed to load settings');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadSettings();
   }, [player]);
 
   if (loadingPlayer) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

@@ -494,6 +494,8 @@ export default function PlayerJourneyPage() {
               key={tab}
               variant="ghost"
               onClick={() => setActiveTab(tab)}
+              aria-label={`View ${tab} tab`}
+              aria-pressed={activeTab === tab}
               className={`flex-shrink-0 capitalize ${
                 activeTab === tab
                   ? isDark 

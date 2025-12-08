@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Loader2, LogOut, User, Search, Users, MessageSquare, Compass } from 'lucide-react';
+import { LogOut, User, Search, Users, MessageSquare, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { isDevMode, DEV_ENTITY_IDS, clearDevMode } from '@/lib/dev-mode';
 import { NotificationBell } from '@/components/NotificationBell';
+import { QuickActionToolbar } from '@/components/ui/QuickActionToolbar';
 
 export default function PlayerLayout({
   children,
@@ -89,7 +90,7 @@ export default function PlayerLayout({
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b1720] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -181,6 +182,9 @@ export default function PlayerLayout({
       <main className="pb-20 md:pb-0">
         {children}
       </main>
+
+      {/* Quick Action Toolbar */}
+      <QuickActionToolbar position="right" userRole="player" />
     </div>
   );
 }

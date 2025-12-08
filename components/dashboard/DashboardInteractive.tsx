@@ -256,7 +256,9 @@ export function DashboardProvider({
 
         wsRef.current.onopen = () => {
           setConnectionStatus('connected');
-          console.log('WebSocket connected');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('WebSocket connected');
+          }
         };
 
         wsRef.current.onmessage = (event) => {

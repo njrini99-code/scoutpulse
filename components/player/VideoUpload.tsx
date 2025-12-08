@@ -31,7 +31,6 @@ import {
   X,
   Check,
   AlertCircle,
-  Loader2,
   Play,
   Film,
   Trash2,
@@ -555,7 +554,7 @@ export function VideoUpload({
               )}
               {status === 'uploading' && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  <div className="w-6 h-6 bg-white/20 rounded animate-pulse" />
                 </div>
               )}
             </div>

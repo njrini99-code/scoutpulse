@@ -26,6 +26,7 @@ import {
 import { PlayerDiscoverSkeleton } from '@/components/ui/loading-state';
 import { toast } from 'sonner';
 import { getColleges, type College } from '@/lib/api/player/recruitingInterests';
+import { logError } from '@/lib/utils/errorLogger';
 import { isDevMode, DEV_ENTITY_IDS } from '@/lib/dev-mode';
 import { cn } from '@/lib/utils';
 import { 
@@ -191,7 +192,7 @@ export default function PlayerDiscoverPage() {
 
     if (error) {
       toast.error('Failed to add school');
-      console.error(error);
+      logError(error, { component: 'PlayerDiscover', action: 'addInterest' });
       return;
     }
 
@@ -569,7 +570,7 @@ function CollegeCard({
 
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
         <button
-          onClick={() => handleViewProgram(college)}
+          onClick={onViewProgram}
           className="text-xs text-slate-500 hover:text-emerald-600 flex items-center gap-1 transition-colors"
         >
           View Program <ArrowUpRight className="w-3 h-3" />

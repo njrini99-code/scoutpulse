@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useCurrentPlayer } from '@/lib/hooks/useCurrentPlayer';
-import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { Card } from '@/components/ui/card';
 import { getPlayerRecruitingSnapshot, type PlayerRecruitingSnapshot } from '@/lib/api/player/getPlayerRecruitingSnapshot';
 import { PlayerRecruitingSummary } from '@/components/player/dashboard/Recruiting/player-recruiting-summary';
@@ -17,14 +18,27 @@ export default function PlayerRecruitingPage() {
 
   useEffect(() => {
     if (!player) return;
-    setLoading(true);
-    getPlayerRecruitingSnapshot(player.id).then(setData).finally(() => setLoading(false));
+    
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const recruitingData = await getPlayerRecruitingSnapshot(player.id);
+        setData(recruitingData);
+      } catch (error) {
+        logError(error, { component: 'PlayerRecruitingPage', action: 'loadRecruitingData' });
+        toast.error('Failed to load recruiting data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
   }, [player]);
 
   if (loadingPlayer) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

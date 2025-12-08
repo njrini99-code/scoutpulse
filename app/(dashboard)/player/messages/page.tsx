@@ -185,15 +185,18 @@ export default function PlayerMessagesPage() {
       .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (convData) {
-      const formatted: Conversation[] = convData.map((conv: { id: string; title: string | null; last_message_text: string | null; last_message_at: string | null; player_unread_count: number; programLogo?: string }) => ({
-        id: conv.id,
-        program_name: (conv.coaches as any)?.school_name || (conv.coaches as any)?.program_name || null,
-        coach_name: (conv.coaches as any)?.full_name || null,
-        last_message: conv.last_message_text,
-        last_message_at: conv.last_message_at,
-        unread_count: conv.player_unread_count || 0,
-        program_logo: (conv.coaches as any)?.logo_url || null,
-      }));
+      const formatted: Conversation[] = convData.map((conv: any) => {
+        const coach = Array.isArray(conv.coaches) ? conv.coaches[0] : conv.coaches;
+        return {
+          id: conv.id,
+          program_name: coach?.school_name || coach?.program_name || null,
+          coach_name: coach?.full_name || null,
+          last_message: conv.last_message_text,
+          last_message_at: conv.last_message_at,
+          unread_count: conv.player_unread_count || 0,
+          program_logo: coach?.logo_url || null,
+        };
+      });
       setConversations(formatted);
       
       if (formatted.length > 0 && !selectedConversation) {
@@ -571,7 +574,7 @@ export default function PlayerMessagesPage() {
                       )}
                     >
                       {sending ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <div className="w-5 h-5 bg-white/20 rounded animate-pulse" />
                       ) : (
                         <Send className="w-5 h-5" />
                       )}

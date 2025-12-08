@@ -475,6 +475,368 @@
       "Click marks as read"
     ],
     "completed": true
+  },
+  {
+    "id": 31,
+    "category": "feature",
+    "priority": "high",
+    "title": "Coach Interest Heatmap",
+    "description": "Players don't know which coaches are actively looking at their profiles or when. A visual heatmap showing coach activity, view patterns, and interest levels helps players understand their recruiting momentum.",
+    "files": ["components/player/CoachInterestHeatmap.tsx", "lib/queries/coach-engagement.ts", "supabase/migrations/coach_tracking.sql"],
+    "acceptance_criteria": [
+      "Tracks and stores coach profile views, time spent, return visits",
+      "Creates visual heatmap showing geographic interest (map view)",
+      "Shows temporal patterns (when coaches are most active)",
+      "Displays interest score based on engagement metrics",
+      "Includes coach tier indicators (D1, D2, D3)",
+      "Adds 'hot prospects' notifications when interest spikes",
+      "Integrates with existing analytics and creates new database tables for tracking"
+    ],
+    "completed": true
+  },
+  {
+    "id": 32,
+    "category": "feature",
+    "priority": "high",
+    "title": "Video Analysis Tools",
+    "description": "Static videos don't provide enough insight for coaches evaluating players. Interactive video tools with frame-by-frame analysis, annotations, and comparison features enhance scouting capabilities.",
+    "files": ["components/player/VideoAnalysisTools.tsx", "lib/queries/video-annotations.ts", "supabase/migrations/video_analysis.sql"],
+    "acceptance_criteria": [
+      "Adds video player with frame-by-frame controls and slow motion",
+      "Enables coaches to add timestamped annotations and highlights",
+      "Supports side-by-side video comparison for multiple players",
+      "Includes drawing tools for technique analysis",
+      "Allows sharing of annotated video clips",
+      "Provides video statistics (view time, replay frequency)",
+      "Integrates with existing video upload system and adds annotation database tables"
+    ],
+    "completed": true
+  },
+  {
+    "id": 33,
+    "category": "feature",
+    "priority": "high",
+    "title": "Smart Profile Completion Coach",
+    "description": "Many player profiles are incomplete, reducing visibility to coaches. A smart completion system with progress tracking and personalized suggestions will increase profile quality and engagement.",
+    "files": ["components/player/ProfileCompletionCoach.tsx", "lib/queries/profile-completion.ts"],
+    "acceptance_criteria": [
+      "Calculates profile completion percentage based on filled fields (basic info, stats, videos, bio, photos)",
+      "Shows a progress bar in the dashboard",
+      "Displays smart suggestions like 'Add your batting average to attract more coaches'",
+      "Uses a sliding panel with actionable CTAs",
+      "Tracks completion milestones and celebrates achievements",
+      "Integrates with existing profile forms and validation"
+    ],
+    "completed": true
+  },
+  {
+    "id": 34,
+    "category": "feature",
+    "priority": "high",
+    "quickWin": true,
+    "title": "Quick Action Toolbar",
+    "description": "Users waste time navigating between pages for common actions. A persistent quick action toolbar provides one-click access to frequently used features like search, messages, and watchlist management.",
+    "files": ["components/ui/QuickActionToolbar.tsx"],
+    "acceptance_criteria": [
+      "Floats as a dismissible sidebar or bottom bar",
+      "Includes quick search with autocomplete",
+      "Shows unread message count with preview",
+      "Provides watchlist quick-add for any player",
+      "Includes keyboard shortcuts (Cmd+K for search, Cmd+M for messages)",
+      "Adapts based on user role (coach vs player actions)",
+      "Uses React Portal for positioning and integrates with existing state management"
+    ],
+    "completed": true
+  },
+  {
+    "id": 35,
+    "category": "feature",
+    "priority": "high",
+    "title": "Smart Message Templates",
+    "description": "Coaches send similar introduction and follow-up messages repeatedly. Smart templates with dynamic personalization save time while maintaining authentic communication.",
+    "files": ["components/messaging/MessageTemplateSystem.tsx", "lib/queries/message-templates.ts", "supabase/migrations/message_templates.sql"],
+    "acceptance_criteria": [
+      "Provides pre-built templates for common scenarios (initial contact, camp invitations, follow-ups)",
+      "Supports dynamic variables like {{player_name}}, {{position}}, {{school}} that auto-populate",
+      "Includes template categories and search",
+      "Allows custom template creation and sharing",
+      "Shows template preview before sending",
+      "Tracks template performance (response rates)",
+      "Integrates with existing message composer and stores templates in database"
+    ],
+    "completed": true
+  },
+  {
+    "id": 36,
+    "category": "feature",
+    "priority": "high",
+    "title": "Recruitment Timeline Tracker",
+    "description": "Both coaches and players lose track of recruitment progress across multiple prospects. A visual timeline showing key milestones, next steps, and deadlines keeps everyone organized.",
+    "files": ["components/recruiting/RecruitmentTimeline.tsx", "lib/queries/recruitment-timeline.ts", "supabase/migrations/recruitment_timeline.sql"],
+    "acceptance_criteria": [
+      "Shows visual timeline with key events (first contact, campus visit, offer, decision)",
+      "Allows both coaches and players to add timeline entries",
+      "Includes milestone templates (official visit, transcript sent, etc.)",
+      "Shows upcoming deadlines and next steps",
+      "Supports file attachments for each timeline entry",
+      "Includes reminder notifications for important dates",
+      "Exports timeline as PDF report",
+      "Creates new database schema for timeline events and relationships"
+    ],
+    "completed": true
+  },
+  {
+    "id": 37,
+    "category": "feature",
+    "priority": "high",
+    "title": "Performance Trends Dashboard",
+    "description": "Static stats don't show player development over time. A trends dashboard with visual charts and improvement tracking helps players showcase growth and helps coaches identify rising talent.",
+    "files": ["components/player/PerformanceTrends.tsx", "lib/queries/performance-trends.ts"],
+    "acceptance_criteria": [
+      "Creates line charts showing stat progression over time",
+      "Highlights significant improvements with callout badges",
+      "Compares player performance to position averages",
+      "Shows seasonal and career trends",
+      "Includes goal tracking and milestone celebrations",
+      "Supports multiple sports and custom metrics",
+      "Exports trend reports as PDF",
+      "Integrates with existing stats system and creates trend calculation logic"
+    ],
+    "completed": true
+  },
+  {
+    "id": 38,
+    "category": "feature",
+    "priority": "high",
+    "title": "Campus Visit Coordinator",
+    "description": "Coordinating campus visits involves complex scheduling between multiple parties. An integrated visit planner streamlines the entire process from invitation to itinerary management.",
+    "files": ["components/recruiting/CampusVisitCoordinator.tsx", "lib/queries/campus-visits.ts", "supabase/migrations/campus_visits.sql"],
+    "acceptance_criteria": [
+      "Enables coaches to send visit invitations with available date ranges",
+      "Allows players to request visits and propose dates",
+      "Generates detailed itineraries with campus activities",
+      "Includes travel planning with hotel/flight suggestions",
+      "Sends automated reminders and confirmations",
+      "Tracks visit outcomes and follow-up tasks",
+      "Integrates with calendar systems and creates visit management database schema",
+      "Includes visit feedback and rating system"
+    ],
+    "completed": true
+  },
+  {
+    "id": 39,
+    "category": "feature",
+    "priority": "medium",
+    "title": "Smart Notification Digest",
+    "description": "Users get overwhelmed by individual notifications or miss important updates. A smart digest system groups related notifications and delivers them at optimal times based on user behavior.",
+    "files": ["components/notifications/SmartNotificationDigest.tsx", "lib/notifications/digest.ts", "supabase/migrations/notification_preferences.sql"],
+    "acceptance_criteria": [
+      "Groups related notifications (all coach views, message clusters)",
+      "Learns optimal delivery times from user activity patterns",
+      "Provides digest frequency options (immediate, hourly, daily)",
+      "Includes smart summaries like '3 new coach views this week'",
+      "Prioritizes urgent notifications (direct messages, deadlines)",
+      "Supports rich email templates with action buttons",
+      "Integrates with existing notification system and adds user preference management"
+    ],
+    "completed": true
+  },
+  {
+    "id": 40,
+    "category": "feature",
+    "priority": "medium",
+    "title": "Competitive Intelligence Hub",
+    "description": "Coaches need to understand the competitive landscape for recruits. A intelligence hub showing which other schools are recruiting the same players helps inform strategy and timing.",
+    "files": ["components/coach/CompetitiveIntelligence.tsx", "lib/queries/competitive-intel.ts", "supabase/migrations/competitive_tracking.sql"],
+    "acceptance_criteria": [
+      "Shows which other coaches are viewing/messaging the same players",
+      "Displays recruiting competition level for each prospect",
+      "Provides market insights (average offer timing, success rates)",
+      "Includes anonymous benchmarking against similar programs",
+      "Shows recruitment velocity indicators (interest increasing/decreasing)",
+      "Respects privacy while providing useful aggregate data",
+      "Integrates with existing analytics and creates competitive tracking system"
+    ],
+    "completed": true
+  },
+  {
+    "id": 41,
+    "category": "feature",
+    "priority": "high",
+    "title": "AI Recruiting Assistant",
+    "description": "Coaches spend hours manually searching and filtering players. An AI assistant that learns coach preferences and proactively suggests matching players would save massive time and improve recruiting success rates.",
+    "files": ["components/coach/AIRecruitingAssistant.tsx", "lib/queries/ai-recommendations.ts", "supabase/migrations/ai_preferences.sql"],
+    "acceptance_criteria": [
+      "Tracks coach search patterns, watchlist additions, and message history",
+      "Uses OpenAI API to analyze coach preferences (position, location, stats, graduation year)",
+      "Runs daily batch job to score all players against coach preferences",
+      "Shows top 5 recommended players with reasoning",
+      "Add 'Not interested' feedback to improve recommendations",
+      "Store coach preferences in new table with ML scoring weights",
+      "Add to coach dashboard as expandable AI panel"
+    ],
+    "completed": false
+  },
+  {
+    "id": 42,
+    "category": "feature",
+    "priority": "high",
+    "title": "Natural Language Search",
+    "description": "Current search requires users to learn filters and interfaces. Natural language search ('show me catchers in Florida graduating 2025') would make the platform more intuitive and powerful.",
+    "files": ["components/search/NaturalLanguageSearch.tsx", "lib/queries/natural-search.ts"],
+    "acceptance_criteria": [
+      "Replace current search input with intelligent search bar",
+      "Use OpenAI API to parse queries into structured filters",
+      "Extract: position, location, graduation year, stats criteria, handedness",
+      "Show interpreted filters as chips below search bar for confirmation",
+      "Add example searches as placeholder text",
+      "Store popular searches for autocomplete",
+      "Fall back to traditional keyword search if AI parsing fails",
+      "Add voice search using Web Speech API",
+      "Cache common query patterns to reduce API calls"
+    ],
+    "completed": false
+  },
+  {
+    "id": 43,
+    "category": "feature",
+    "priority": "high",
+    "quickWin": true,
+    "title": "Quick Action Overlays",
+    "description": "Users currently need multiple clicks to perform common actions. Hover overlays with instant actions (add to watchlist, quick message, view stats) would make the platform feel much more responsive and premium.",
+    "files": ["components/ui/QuickActionOverlay.tsx", "components/ui/PlayerCard.tsx"],
+    "acceptance_criteria": [
+      "On hover, show floating action bar with icons for: watchlist toggle, quick message, view full profile, compare",
+      "Use Tailwind hover states and absolute positioning",
+      "Add keyboard shortcuts (W for watchlist, M for message)",
+      "Implement optimistic updates for instant feedback",
+      "Add subtle animations using CSS transforms",
+      "Ensure mobile-friendly with tap-and-hold on touch devices",
+      "Create reusable QuickActions component"
+    ],
+    "completed": false
+  },
+  {
+    "id": 44,
+    "category": "feature",
+    "priority": "high",
+    "title": "Smart Profile Completion",
+    "description": "Many player profiles are incomplete, reducing their chances of being discovered. A gamified completion system with progress bars, achievement badges, and feature unlocks would drive engagement and improve profile quality.",
+    "files": ["components/player/ProfileCompletionCard.tsx", "lib/queries/profile-completion.ts"],
+    "acceptance_criteria": [
+      "Add ProfileCompletionCard component to player dashboard",
+      "Calculate completion percentage based on: profile photo, bio, stats, videos, contact info, academic info",
+      "Show progress bar and 'X of 8 sections complete'",
+      "List missing items with direct links to edit forms",
+      "Add achievement badges (Bronze: 50%, Silver: 75%, Gold: 100%)",
+      "Unlock features: messaging at 60%, appear in search at 40%",
+      "Store completion_score in player table, update on profile changes",
+      "Add celebration animation when milestones reached"
+    ],
+    "completed": false
+  },
+  {
+    "id": 45,
+    "category": "feature",
+    "priority": "high",
+    "title": "Player Comparison Matrix",
+    "description": "Coaches need to compare multiple players but currently must open separate tabs and manually track differences. A side-by-side comparison tool would streamline decision-making and look highly professional.",
+    "files": ["app/compare/page.tsx", "components/player/ComparisonMatrix.tsx", "lib/queries/player-comparison.ts"],
+    "acceptance_criteria": [
+      "Add 'Compare' checkbox to all player cards that adds to comparison state",
+      "Show floating comparison bar with selected players (max 4)",
+      "Create /compare route with side-by-side player cards",
+      "Display stats in comparison table with color coding (green for highest, red for lowest)",
+      "Include videos with synchronized playback controls",
+      "Add export to PDF functionality using jsPDF",
+      "Save comparison sessions in localStorage",
+      "Add URL sharing for comparisons",
+      "Use React Context for comparison state management"
+    ],
+    "completed": false
+  },
+  {
+    "id": 46,
+    "category": "feature",
+    "priority": "high",
+    "title": "Smart Scheduling Assistant",
+    "description": "Coaches waste time coordinating visits and calls across timezones. An intelligent scheduling system that suggests optimal times, detects conflicts, and handles timezone conversion would eliminate scheduling friction.",
+    "files": ["components/scheduling/SmartSchedulingAssistant.tsx", "lib/queries/scheduling.ts", "supabase/migrations/scheduling_preferences.sql"],
+    "acceptance_criteria": [
+      "Add timezone detection and storage in user profiles",
+      "Build SchedulingAssistant component that suggests meeting times based on both users' availability",
+      "Integrate with calendar events to detect conflicts",
+      "Add 'Schedule Call' button to messages that opens smart scheduling modal",
+      "Show suggested times in both users' timezones",
+      "Calculate travel time for in-person visits using Google Maps API",
+      "Send calendar invites via email with timezone conversion",
+      "Add recurring event options",
+      "Store scheduling preferences (morning person, weekends ok, etc.)",
+      "Use external calendar integration (Google/Outlook) to check real availability"
+    ],
+    "completed": false
+  },
+  {
+    "id": 47,
+    "category": "feature",
+    "priority": "medium",
+    "title": "Activity Stream Intelligence",
+    "description": "Users miss important updates and interactions. A smart activity feed that highlights relevant actions, groups related activities, and sends intelligent notifications would keep users engaged and informed.",
+    "files": ["components/activity/ActivityFeed.tsx", "lib/queries/activities.ts", "supabase/migrations/activities.sql"],
+    "acceptance_criteria": [
+      "Create activities table to track: profile views, watchlist adds, messages, stat updates, video uploads",
+      "Build ActivityFeed component with grouped, chronological activities",
+      "Add smart grouping ('3 coaches viewed your profile today')",
+      "Show relative timestamps ('2 hours ago')",
+      "Add notification preferences (email digest, push notifications)",
+      "Implement real-time updates using WebSockets or polling",
+      "Add activity indicators (red dot) to main navigation",
+      "Create different activity types with custom icons and messages",
+      "Add privacy controls (who can see you viewed their profile)",
+      "Include quick actions in activity items (reply to message, view profile)"
+    ],
+    "completed": false
+  },
+  {
+    "id": 48,
+    "category": "feature",
+    "priority": "medium",
+    "title": "One-Click Export Suite",
+    "description": "Coaches need to create reports and share data with staff but currently must screenshot or manually compile information. Professional export options (PDF reports, CSV data, presentation slides) would save hours and look impressive.",
+    "files": ["lib/export/ExportManager.ts", "components/export/ExportButton.tsx"],
+    "acceptance_criteria": [
+      "Add ExportManager utility class with methods for PDF, CSV, and image exports",
+      "Use jsPDF for PDF generation with custom templates (player reports, recruiting summaries)",
+      "Add CSV export for watchlists and search results with all player data",
+      "Create branded PDF templates with coach/school logos",
+      "Add export buttons to key components with dropdown options",
+      "Include print-optimized CSS classes",
+      "Generate shareable links for exported content",
+      "Add bulk export options (export all watchlisted players)",
+      "Compress large exports to ZIP files",
+      "Track export analytics to see most popular formats"
+    ],
+    "completed": false
+  },
+  {
+    "id": 49,
+    "category": "feature",
+    "priority": "medium",
+    "title": "Message Templates & Smart Replies",
+    "description": "Coaches send similar messages repeatedly (initial interest, follow-ups, camp invites). Smart templates with personalization and suggested replies would save significant time and ensure consistent communication quality.",
+    "files": ["components/messaging/MessageTemplates.tsx", "lib/queries/message-templates.ts", "supabase/migrations/message_templates.sql"],
+    "acceptance_criteria": [
+      "Add template dropdown in the message composer with categories: 'Initial Interest', 'Follow-up', 'Camp Invitation', 'Scholarship Offer'",
+      "Include placeholder variables like {{player_name}}, {{position}}, {{school}}",
+      "Add ability to save custom templates and set favorites",
+      "Include quick reply buttons for common responses",
+      "Show template preview before sending",
+      "Track template performance (response rates)",
+      "Allow template sharing between coaches at same institution",
+      "Add message scheduling for optimal send times",
+      "Include email signature templates with coach credentials"
+    ],
+    "completed": false
   }
 ]
 

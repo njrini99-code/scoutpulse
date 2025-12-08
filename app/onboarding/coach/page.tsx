@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -134,7 +135,21 @@ export default function CoachOnboarding() {
         return;
       }
 
-      const updateData: any = {
+      const updateData: Partial<{
+        full_name: string | null;
+        onboarding_completed: boolean;
+        onboarding_step: number;
+        school_name?: string | null;
+        school_city?: string | null;
+        school_state?: string | null;
+        staff_role?: string | null;
+        program_division?: string | null;
+        organization_name?: string | null;
+        organization_city?: string | null;
+        organization_state?: string | null;
+        program_values: string | null;
+        about: string | null;
+      }> = {
         full_name: formData.full_name || null,
         onboarding_completed: true,
         onboarding_step: 2,
@@ -163,7 +178,7 @@ export default function CoachOnboarding() {
 
       if (error) {
         toast.error('Error saving profile');
-        console.error(error);
+        logError(error, { component: 'CoachOnboarding', action: 'handleSubmit' });
         return;
       }
 
@@ -176,7 +191,7 @@ export default function CoachOnboarding() {
         router.push(dashboardPath);
       }, 2000);
     } catch (error) {
-      console.error('Onboarding error:', error);
+      logError(error, { component: 'CoachOnboarding', action: 'handleSubmit', metadata: { unexpected: true } });
       toast.error('An error occurred');
     } finally {
       setSaving(false);
@@ -186,7 +201,7 @@ export default function CoachOnboarding() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <div className="w-8 h-8 bg-blue-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -446,7 +461,7 @@ export default function CoachOnboarding() {
             >
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" />
                   Saving...
                 </>
               ) : (

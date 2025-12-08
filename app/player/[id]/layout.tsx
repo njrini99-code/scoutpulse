@@ -61,7 +61,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch (error) {
-    console.error('Error generating player metadata:', error);
+    // Log error but don't block metadata generation
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error generating player metadata:', error);
+    }
     return {
       title: 'Player Profile | ScoutPulse',
       description: 'View player profile, stats, and highlights on ScoutPulse.',

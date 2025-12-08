@@ -13,7 +13,6 @@ import {
   MapPin,
   Users,
   Search,
-  Loader2,
   CheckCircle2,
   Clock,
   Heart,
@@ -144,7 +143,7 @@ export default function PlayerCampsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50/50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -342,7 +341,7 @@ function CampCard({ camp, isRegistered, onRegister, onCancel, loading }: CampCar
                     onClick={onCancel}
                     disabled={loading}
                   >
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Cancel'}
+                    {loading ? <div className="w-4 h-4 bg-white/20 rounded animate-pulse" /> : 'Cancel'}
                   </Button>
                 </>
               ) : (
@@ -353,7 +352,7 @@ function CampCard({ camp, isRegistered, onRegister, onCancel, loading }: CampCar
                   disabled={loading}
                 >
                   {loading ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" />
                   ) : (
                     <Heart className="w-4 h-4 mr-2" />
                   )}
@@ -439,7 +438,7 @@ function RegistrationCard({ registration, onCancel, loading }: RegistrationCardP
                 onClick={onCancel}
                 disabled={loading}
               >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Cancel'}
+                {loading ? <div className="w-4 h-4 bg-white/20 rounded animate-pulse" /> : 'Cancel'}
               </Button>
             )}
           </div>

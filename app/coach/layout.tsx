@@ -25,6 +25,7 @@ import type { CoachType } from '@/lib/types';
 import { useTheme } from '@/lib/theme-context';
 import { isDevMode, DEV_ENTITY_IDS, clearDevMode, getDevRole } from '@/lib/dev-mode';
 import { NotificationBell } from '@/components/NotificationBell';
+import { QuickActionToolbar } from '@/components/ui/QuickActionToolbar';
 
 export default function CoachLayout({
   children,
@@ -174,7 +175,7 @@ export default function CoachLayout({
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center transition-colors ${theme.pageBg}`}>
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -276,6 +277,9 @@ export default function CoachLayout({
       <main className="pb-20 lg:pb-0">
         {children}
       </main>
+
+      {/* Quick Action Toolbar */}
+      <QuickActionToolbar position="right" userRole="coach" />
     </div>
   );
 }

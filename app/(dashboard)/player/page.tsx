@@ -31,7 +31,6 @@ import {
   Edit,
   Plus,
   ExternalLink,
-  Loader2,
   Share2,
   School,
   CheckCircle2,
@@ -392,7 +391,7 @@ export default function PlayerDashboardPage() {
       className="min-h-screen"
       initial={pageTransition.initial}
       animate={pageTransition.animate}
-      transition={pageTransition.transition}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
     >
       {/* ═══════════════════════════════════════════════════════════════════
           DARK HERO ZONE
@@ -495,11 +494,11 @@ export default function PlayerDashboardPage() {
           {/* B. STAT CARDS ROW */}
           <motion.div 
             className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
-            variants={staggerContainer}
+            variants={staggerContainer as any}
             initial="hidden"
             animate="visible"
           >
-            <motion.div variants={staggerItem}>
+            <motion.div variants={staggerItem as any}>
               <GlassStatCard
                 icon={<Eye className="w-4 h-4" />}
                 value={engagement?.recent_views_7d ?? 0}
@@ -508,7 +507,7 @@ export default function PlayerDashboardPage() {
                 trend={engagement && engagement.recent_views_7d > 5 ? 12 : undefined}
               />
             </motion.div>
-            <motion.div variants={staggerItem}>
+            <motion.div variants={staggerItem as any}>
               <GlassStatCard
                 icon={<GraduationCap className="w-4 h-4" />}
                 value={collegeInterestCount}
@@ -516,7 +515,7 @@ export default function PlayerDashboardPage() {
                 sublabel="Schools tracking you"
               />
             </motion.div>
-            <motion.div variants={staggerItem}>
+            <motion.div variants={staggerItem as any}>
               <GlassStatCard
                 icon={<Bookmark className="w-4 h-4" />}
                 value={engagement?.watchlist_adds_count ?? 0}
@@ -525,7 +524,7 @@ export default function PlayerDashboardPage() {
                 trend={engagement && engagement.watchlist_adds_count > 3 ? 8 : undefined}
               />
             </motion.div>
-            <motion.div variants={staggerItem}>
+            <motion.div variants={staggerItem as any}>
               <GlassStatCard
                 icon={<MessageSquare className="w-4 h-4" />}
                 value={unreadMessages}
@@ -719,6 +718,8 @@ export default function PlayerDashboardPage() {
                   </button>
                   <button
                     onClick={() => setCollegeJourneyTab('favorites')}
+                    aria-label="View favorite colleges"
+                    aria-pressed={collegeJourneyTab === 'favorites'}
                     className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-150 ${
                       collegeJourneyTab === 'favorites' 
                         ? 'bg-white text-purple-700' 
@@ -729,6 +730,8 @@ export default function PlayerDashboardPage() {
                   </button>
                   <button
                     onClick={() => setCollegeJourneyTab('interested')}
+                    aria-label="View interested colleges"
+                    aria-pressed={collegeJourneyTab === 'interested'}
                     className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-150 ${
                       collegeJourneyTab === 'interested' 
                         ? 'bg-white text-purple-700' 
@@ -749,6 +752,7 @@ export default function PlayerDashboardPage() {
                             <button
                               key={school.id}
                               onClick={() => router.push('/player/discover')}
+                              aria-label={`View ${school.name} profile`}
                               className="flex-shrink-0 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:border-purple-400/30 hover:bg-white/[0.06] transition-all duration-150 group"
                             >
                               <div className="w-9 h-9 rounded-lg bg-purple-500/15 border border-purple-500/20 flex items-center justify-center">

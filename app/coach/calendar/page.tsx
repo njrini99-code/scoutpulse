@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { logError } from '@/lib/utils/errorLogger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -103,7 +104,7 @@ export default function CoachCalendarPage() {
       }));
       setEvents(formatted);
     } catch (error) {
-      console.error('Failed to load calendar events', error);
+      logError(error, { component: 'CoachCalendarPage', action: 'loadEvents' });
       toast.error('Unexpected error while loading your calendar.');
     } finally {
       setLoading(false);
@@ -126,7 +127,7 @@ export default function CoachCalendarPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-8 h-8 bg-emerald-500/20 rounded animate-pulse" />
       </div>
     );
   }

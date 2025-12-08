@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { logError } from '@/lib/utils/errorLogger';
 import { Bell, Check, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
@@ -37,7 +38,7 @@ export default function CoachNotificationsPage() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching notifications:', error);
+        logError(error, { component: 'NotificationsPage', action: 'loadNotifications' });
         toast.error('Failed to load notifications');
         return;
       }

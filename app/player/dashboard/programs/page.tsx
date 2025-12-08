@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useCurrentPlayer } from '@/lib/hooks/useCurrentPlayer';
-import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { logError } from '@/lib/utils/errorLogger';
 import { Card } from '@/components/ui/card';
 import { getPlayerPrograms, type PlayerProgramsResponse } from '@/lib/api/player/getPlayerPrograms';
 import { PlayerHighSchoolProgramCard } from '@/components/player/dashboard/Programs/player-high-school-program-card';
@@ -15,14 +16,27 @@ export default function PlayerProgramsPage() {
 
   useEffect(() => {
     if (!player) return;
-    setLoading(true);
-    getPlayerPrograms(player.id).then(setData).finally(() => setLoading(false));
+    
+    const loadPrograms = async () => {
+      setLoading(true);
+      try {
+        const programsData = await getPlayerPrograms(player.id);
+        setData(programsData);
+      } catch (error) {
+        logError(error, { component: 'PlayerProgramsPage', action: 'loadPrograms' });
+        toast.error('Failed to load programs');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadPrograms();
   }, [player]);
 
   if (loadingPlayer) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <div className="w-6 h-6 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }

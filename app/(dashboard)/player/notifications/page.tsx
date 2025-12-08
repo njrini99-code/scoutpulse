@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { logError } from '@/lib/utils/errorLogger';
 import { Bell, Check, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -37,14 +38,14 @@ export default function NotificationsPage() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching notifications:', error);
+        logError(error, { component: 'NotificationsPage', action: 'fetchNotifications' });
         toast.error('Failed to load notifications');
         return;
       }
 
       setNotifications(data || []);
     } catch (error) {
-      console.error('Error:', error);
+      logError(error, { component: 'NotificationsPage', action: 'fetchNotifications', metadata: { unexpected: true } });
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,7 @@ export default function NotificationsPage() {
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
       );
     } catch (error) {
-      console.error('Error:', error);
+      logError(error, { component: 'NotificationsPage', action: 'markAsRead' });
     }
   };
 
@@ -89,7 +90,7 @@ export default function NotificationsPage() {
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       toast.success('All notifications marked as read');
     } catch (error) {
-      console.error('Error:', error);
+      logError(error, { component: 'NotificationsPage', action: 'markAllAsRead' });
     }
   };
 
@@ -108,7 +109,7 @@ export default function NotificationsPage() {
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
       toast.success('Notification deleted');
     } catch (error) {
-      console.error('Error:', error);
+      logError(error, { component: 'NotificationsPage', action: 'handleDelete' });
     }
   };
 

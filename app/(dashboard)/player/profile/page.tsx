@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { logError } from '@/lib/utils/errorLogger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +27,6 @@ import {
   School,
   Link as LinkIcon,
   Save,
-  Loader2,
   ArrowLeft,
   Camera,
   Plus,
@@ -186,13 +186,13 @@ function ProfileEditContent() {
 
       if (error) {
         toast.error('Failed to save profile');
-        console.error(error);
+        logError(error, { component: 'ProfileEditContent', action: 'handleSave' });
         return;
       }
 
       toast.success('Profile saved successfully!');
     } catch (error) {
-      console.error('Save error:', error);
+      logError(error, { component: 'ProfileEditContent', action: 'handleSave', metadata: { unexpected: true } });
       toast.error('An error occurred');
     } finally {
       setSaving(false);
@@ -243,7 +243,7 @@ function ProfileEditContent() {
   if (loading) {
     return (
       <div className={`min-h-screen ${theme.bg} flex items-center justify-center`}>
-        <Loader2 className={`w-8 h-8 animate-spin ${theme.accent}`} />
+        <div className="w-8 h-8 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -271,7 +271,7 @@ function ProfileEditContent() {
           >
             {saving ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" />
                 Saving...
               </>
             ) : (
@@ -653,7 +653,7 @@ export default function PlayerProfilePage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#0B0D0F] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+        <div className="w-8 h-8 bg-emerald-400/20 rounded animate-pulse" />
       </div>
     }>
       <ProfileEditContent />

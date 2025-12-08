@@ -411,7 +411,7 @@ function PlayerModal({ isOpen, onClose, player, onSave, loading }: PlayerModalPr
               Cancel
             </Button>
             <Button type="submit" disabled={loading} className="bg-amber-500 hover:bg-amber-600">
-              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {loading && <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" />}
               {player ? 'Save Changes' : 'Add Player'}
             </Button>
           </DialogFooter>
@@ -801,7 +801,7 @@ export default function HSCoachRosterPage() {
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+        <div className="w-8 h-8 bg-amber-500/20 rounded animate-pulse" />
       </div>
     );
   }
@@ -1181,7 +1181,7 @@ export default function HSCoachRosterPage() {
               disabled={saving}
               className="bg-red-500 hover:bg-red-600 text-white"
             >
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {saving && <div className="w-4 h-4 bg-white/20 rounded animate-pulse mr-2" />}
               Remove
             </Button>
           </DialogFooter>
