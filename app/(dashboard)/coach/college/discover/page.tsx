@@ -236,6 +236,22 @@ export default function CollegeCoachDiscoverPage() {
   }, []);
 
   const handleAddToWatchlist = useCallback(async (playerId: string, playerName: string) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'initial',
+        hypothesisId: 'A',
+        location: 'discover/page.tsx:handleAddToWatchlist',
+        message: 'handleAddToWatchlist called',
+        data: { playerId, playerName, coachId: !!coachId },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion agent log
+
     if (!coachId) {
       toast.error('Please log in as a coach');
       return;
@@ -349,10 +365,26 @@ export default function CollegeCoachDiscoverPage() {
   };
 
   const toggleGradYear = (year: number) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'initial',
+        hypothesisId: 'B',
+        location: 'discover/page.tsx:toggleGradYear',
+        message: 'toggleGradYear called',
+        data: { year, prevGradYears: filters.gradYears },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion agent log
+
     setFilters(prev => ({
       ...prev,
-      gradYears: prev.gradYears.includes(year) 
-        ? prev.gradYears.filter(y => y !== year) 
+      gradYears: prev.gradYears.includes(year)
+        ? prev.gradYears.filter(y => y !== year)
         : [...prev.gradYears, year]
     }));
   };
@@ -483,9 +515,28 @@ export default function CollegeCoachDiscoverPage() {
         ═══════════════════════════════════════════════════════════════════ */}
         <Card className="rounded-3xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           {/* Filters Header */}
-          <button
+          {/* #region agent log */}
+          <script dangerouslySetInnerHTML={{
+            __html: `
+              fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  sessionId: 'debug-session',
+                  runId: 'initial',
+                  hypothesisId: 'D',
+                  location: 'discover/page.tsx:filters-header',
+                  message: 'Rendering filters header',
+                  data: { showFilters, activeFilterSummary: !!activeFilterSummary },
+                  timestamp: Date.now()
+                })
+              }).catch(() => {});
+            `
+          }} />
+          {/* #endregion agent log */}
+          <div
             onClick={() => setShowFilters(!showFilters)}
-            className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
+            className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-slate-50/50 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <Filter className="w-4 h-4 text-slate-400" strokeWidth={2} />
@@ -493,14 +544,35 @@ export default function CollegeCoachDiscoverPage() {
             </div>
             <div className="flex items-center gap-2">
               {activeFilterSummary && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-slate-500 hover:text-slate-700"
-                  onClick={(e) => { e.stopPropagation(); clearAllFilters(); }}
-                >
-                  Reset all
-                </Button>
+                <>
+                  {/* #region agent log */}
+                  <script dangerouslySetInnerHTML={{
+                    __html: `
+                      fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          sessionId: 'debug-session',
+                          runId: 'initial',
+                          hypothesisId: 'E',
+                          location: 'discover/page.tsx:reset-button',
+                          message: 'Rendering reset button',
+                          data: { activeFilterSummary },
+                          timestamp: Date.now()
+                        })
+                      }).catch(() => {});
+                    `
+                  }} />
+                  {/* #endregion agent log */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs text-slate-500 hover:text-slate-700"
+                    onClick={(e) => { e.stopPropagation(); clearAllFilters(); }}
+                  >
+                    Reset all
+                  </Button>
+                </>
               )}
               {showFilters ? (
                 <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -508,7 +580,7 @@ export default function CollegeCoachDiscoverPage() {
                 <ChevronDown className="w-4 h-4 text-slate-400" />
               )}
             </div>
-          </button>
+          </div>
 
           {showFilters && (
             <div className="px-5 pb-5 border-t border-slate-100 space-y-4">

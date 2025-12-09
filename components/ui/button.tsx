@@ -45,11 +45,27 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'initial',
+        hypothesisId: 'F',
+        location: 'button.tsx:Button',
+        message: 'Button component rendering',
+        data: { variant, size, asChild, hasOnClick: !!props.onClick, className: className?.substring(0, 50) },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion agent log
+
     const Comp = asChild ? Slot : 'button';
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
+        ref={asChild ? undefined : ref}
         {...props}
       />
     );

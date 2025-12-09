@@ -72,13 +72,15 @@ export async function getUpcomingCamps(limit = 20): Promise<CampEvent[]> {
     .order('start_date', { ascending: true })
     .limit(limit);
 
+  const campData = (data as CampEvent[] | null) ?? [];
+
   if (error) {
     console.error('Error fetching camps:', error);
     return [];
   }
 
   // Get registration counts for each camp
-  const campIds = data.map(c => c.id);
+  const campIds = campData.map(c => c.id);
   const { data: counts } = await supabase
     .from('camp_registrations')
     .select('camp_event_id, status')
@@ -95,7 +97,7 @@ export async function getUpcomingCamps(limit = 20): Promise<CampEvent[]> {
     countMap.set(r.camp_event_id, current);
   });
 
-  return data.map(camp => ({
+  return campData.map(camp => ({
     ...camp,
     registration_count: countMap.get(camp.id)?.registered || 0,
     interested_count: countMap.get(camp.id)?.interested || 0,
@@ -235,21 +237,89 @@ export async function cancelCampRegistration(
  * Get coach's camp events
  */
 export async function getCoachCamps(coachId: string): Promise<CampEvent[]> {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'I',
+      location: 'camp-registration.ts:getCoachCamps',
+      message: 'getCoachCamps called',
+      data: { coachId },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
+
   const supabase = createClient();
-  
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'I',
+      location: 'camp-registration.ts:getCoachCamps',
+      message: 'Querying camp_events table',
+      data: { coachId },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
+
   const { data, error } = await supabase
     .from('camp_events')
-    .select('*')
+    .select(`
+      *,
+      coach:coaches(id, full_name, program_name, logo_url, city, state)
+    `)
     .eq('coach_id', coachId)
     .order('start_date', { ascending: true });
+  const campData = (data as CampEvent[] | null) ?? [];
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'I',
+      location: 'camp-registration.ts:getCoachCamps',
+      message: 'camp_events query completed',
+      data: { dataCount: campData.length || 0, hasError: !!error, error },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
 
   if (error) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'initial',
+        hypothesisId: 'I',
+        location: 'camp-registration.ts:getCoachCamps',
+        message: 'Error condition triggered',
+        data: { error, data: campData.length > 0, dataLength: campData.length },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion agent log
+
     console.error('Error fetching coach camps:', error);
     return [];
   }
 
   // Get registration counts
-  const campIds = data.map(c => c.id);
+  const campIds = campData.map(c => c.id);
   const { data: counts } = await supabase
     .from('camp_registrations')
     .select('camp_event_id, status')
@@ -373,5 +443,3 @@ export async function updateCampEvent(
 
   return true;
 }
-
-

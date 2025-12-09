@@ -1,11 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { Toaster } from 'sonner';
-import { ThemeProvider } from '@/lib/theme-context';
-import { ErrorProvider } from '@/components/providers/ErrorProvider';
-import { AnimationProvider } from '@/components/providers/AnimationProvider';
-import { PWAProvider } from '@/components/pwa/PWAProvider';
+import { ClientProviders } from './client-providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,7 +16,7 @@ export const metadata: Metadata = {
   creator: 'ScoutPulse',
   publisher: 'ScoutPulse',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://scoutpulse.app'),
-  
+
   // Open Graph
   openGraph: {
     type: 'website',
@@ -38,7 +34,7 @@ export const metadata: Metadata = {
       },
     ],
   },
-  
+
   // Twitter Card
   twitter: {
     card: 'summary_large_image',
@@ -47,17 +43,17 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
     creator: '@scoutpulse',
   },
-  
+
   // Icons
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   },
-  
+
   // Manifest
   manifest: '/manifest.json',
-  
+
   // Robots
   robots: {
     index: true,
@@ -80,23 +76,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="light" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider>
-          <ErrorProvider>
-            <AnimationProvider>
-              <PWAProvider>
-                {children}
-              </PWAProvider>
-            </AnimationProvider>
-          </ErrorProvider>
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              classNames: {
-                toast: 'bg-white dark:bg-slate-800 border-emerald-200 dark:border-slate-700 text-slate-800 dark:text-white',
-              },
-            }}
-          />
-        </ThemeProvider>
+        <ClientProviders>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );

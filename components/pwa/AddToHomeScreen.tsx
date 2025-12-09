@@ -17,6 +17,9 @@ export function AddToHomeScreen() {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);

@@ -52,6 +52,17 @@ export function HeroSection() {
 
       {/* Hero Content */}
       <div className="relative z-10 container mx-auto px-6 pt-32 pb-20 text-center">
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-12 flex justify-center"
+        >
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-2xl shadow-emerald-500/50 backdrop-blur-xl border border-white/20">
+            <span className="text-white font-black text-3xl">SP</span>
+          </div>
+        </motion.div>
         {/* Eyebrow text */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

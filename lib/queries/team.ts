@@ -434,7 +434,39 @@ export async function getTeamsByState(
   stateCode: string,
   teamTypes: ('high_school' | 'showcase')[] = ['high_school', 'showcase']
 ): Promise<TeamByStateSummary[]> {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'G',
+      location: 'team.ts:getTeamsByState',
+      message: 'getTeamsByState called',
+      data: { stateCode, teamTypes },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
+
   const supabase = createClient();
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'G',
+      location: 'team.ts:getTeamsByState',
+      message: 'About to query Supabase',
+      data: { stateCode, teamTypes },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
 
   const { data: teams, error } = await supabase
     .from('teams')
@@ -448,14 +480,47 @@ export async function getTeamsByState(
     `)
     .eq('state', stateCode)
     .in('team_type', teamTypes);
+  const teamData = (teams as { id: string; name?: string; logo_url?: string; city?: string; state?: string; team_type?: string }[] | null) ?? [];
 
-  if (error || !teams) {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'G',
+      location: 'team.ts:getTeamsByState',
+      message: 'Query completed',
+      data: { teamsCount: teamData.length || 0, hasError: !!error, error },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
+
+  if (error || teamData.length === 0) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'initial',
+        hypothesisId: 'G',
+        location: 'team.ts:getTeamsByState',
+        message: 'Error condition triggered',
+        data: { error, teams: teamData.length > 0, teamsLength: teamData.length },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion agent log
+
     console.error('Error fetching teams by state:', error);
     return [];
   }
 
   // Get player counts and commitment counts for each team
-  const teamIds = teams.map(t => t.id);
+  const teamIds = teamData.map(t => t.id);
   
   const { data: memberships } = await supabase
     .from('team_memberships')
@@ -488,7 +553,39 @@ export async function getTeamsByState(
  * Get JUCO programs by state
  */
 export async function getJucosByState(stateCode: string): Promise<JucoByStateSummary[]> {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'H',
+      location: 'team.ts:getJucosByState',
+      message: 'getJucosByState called',
+      data: { stateCode },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
+
   const supabase = createClient();
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'H',
+      location: 'team.ts:getJucosByState',
+      message: 'About to query Supabase for JUCOs',
+      data: { stateCode },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
 
   const { data: teams, error } = await supabase
     .from('teams')
@@ -502,14 +599,47 @@ export async function getJucosByState(stateCode: string): Promise<JucoByStateSum
     `)
     .eq('state', stateCode)
     .eq('team_type', 'juco');
+  const teamData = (teams as { id: string; name?: string; logo_url?: string; city?: string; state?: string; organization_name?: string }[] | null) ?? [];
 
-  if (error || !teams) {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'initial',
+      hypothesisId: 'H',
+      location: 'team.ts:getJucosByState',
+      message: 'JUCO query completed',
+      data: { teamsCount: teamData.length || 0, hasError: !!error, error },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion agent log
+
+  if (error || teamData.length === 0) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/c351967e-a062-4da3-8c65-86a13eaf3c2b', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'initial',
+        hypothesisId: 'H',
+        location: 'team.ts:getJucosByState',
+        message: 'JUCO error condition triggered',
+        data: { error, teams: teamData.length > 0, teamsLength: teamData.length },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion agent log
+
     console.error('Error fetching JUCOs by state:', error);
     return [];
   }
 
   // Get player counts for each JUCO
-  const teamIds = teams.map(t => t.id);
+  const teamIds = teamData.map(t => t.id);
   
   const { data: memberships } = await supabase
     .from('team_memberships')
@@ -521,13 +651,13 @@ export async function getJucosByState(stateCode: string): Promise<JucoByStateSum
     playerCounts[m.team_id] = (playerCounts[m.team_id] || 0) + 1;
   });
 
-  return teams.map(team => ({
+  return teamData.map(team => ({
     id: team.id,
-    name: team.name,
-    logoUrl: team.logo_url,
-    city: team.city,
-    state: team.state,
-    conference: team.organization_name, // Using organization_name as conference placeholder
+    name: team.name || '',
+    logoUrl: team.logo_url || null,
+    city: team.city || '',
+    state: team.state || '',
+    conference: team.organization_name || '', // Using organization_name as conference placeholder
     playersCount: playerCounts[team.id] || 0,
   }));
 }

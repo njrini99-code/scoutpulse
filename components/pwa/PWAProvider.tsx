@@ -9,23 +9,32 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
   const [swRegistered, setSwRegistered] = useState(false);
 
   useEffect(() => {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+
     // Register service worker
     registerServiceWorker().then((registration) => {
       if (registration) {
         setSwRegistered(true);
-        console.log('[PWA] Service worker registered');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[PWA] Service worker registered');
+        }
       }
     });
 
     // Monitor online/offline status
     const handleOnline = () => {
       setIsOnline(true);
-      console.log('[PWA] App is online');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[PWA] App is online');
+      }
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      console.log('[PWA] App is offline');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[PWA] App is offline');
+      }
     };
 
     window.addEventListener('online', handleOnline);

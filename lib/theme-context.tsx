@@ -16,6 +16,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+
     // Check for saved preference or system preference
     const saved = localStorage.getItem('scoutpulse-theme') as Theme | null;
     if (saved) {
@@ -38,6 +41,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+    
     // Save preference and update document class
     localStorage.setItem('scoutpulse-theme', theme);
     document.documentElement.classList.remove('light', 'dark');
