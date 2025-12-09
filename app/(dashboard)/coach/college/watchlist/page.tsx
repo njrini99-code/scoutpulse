@@ -445,7 +445,7 @@ export default function CollegeCoachWatchlistPage() {
 
   // Handlers
   const handleViewPlayer = (playerId: string) => {
-    router.push(`/coach/college/player/${playerId}`);
+    router.push(`/player/${playerId}`);
   };
 
   const handleMessagePlayer = (playerId: string, playerName: string) => {

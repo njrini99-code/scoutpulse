@@ -388,9 +388,24 @@ export async function removePlayerFromTeam(
 /**
  * Get player's team (for player view)
  */
-export async function getPlayerTeam(playerId: string): Promise<Team | null> {
+export async function getPlayerTeam(playerId: string, teamType?: 'high_school' | 'showcase'): Promise<Team | null> {
   const supabase = createClient();
-  
+
+  // If teamType is specified, find the team membership for that type
+  if (teamType) {
+    const { data: membership } = await supabase
+      .from('team_memberships')
+      .select('team_id')
+      .eq('player_id', playerId)
+      .eq('teams.team_type', teamType)
+      .maybeSingle();
+
+    if (!membership) return null;
+
+    return getTeamById(membership.team_id);
+  }
+
+  // Original behavior - get the first team
   const { data: membership } = await supabase
     .from('team_memberships')
     .select('team_id')

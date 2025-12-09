@@ -34,6 +34,16 @@ import {
   Medal,
   Building2,
 } from 'lucide-react';
+import {
+  glassCard,
+  glassCardInteractive,
+  glassHero,
+  glassStatCard,
+  glassPanel,
+  glassButton,
+  glassDarkZone,
+  glassLightZone,
+} from '@/lib/glassmorphism';
 import { useTheme } from '@/lib/theme-context';
 import Link from 'next/link';
 import type { Coach } from '@/lib/types';

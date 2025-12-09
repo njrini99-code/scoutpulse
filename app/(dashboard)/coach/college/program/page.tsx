@@ -478,12 +478,16 @@ export default function CollegeCoachProgramPage() {
                 </AvatarFallback>
               </Avatar>
               {!isPreviewMode && (
-                <button 
-                  className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => toast.info('Logo upload coming soon')}
+                <Link
+                  href="/coach/college/settings"
+                  className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <Upload className="w-6 h-6 text-white" />
-                </button>
+                  <div className="text-center">
+                    <Upload className="w-6 h-6 text-white mx-auto mb-1" />
+                    <span className="text-xs text-white">Upload Logo</span>
+                  </div>
+                </Link>
               )}
             </div>
 

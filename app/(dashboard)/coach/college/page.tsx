@@ -5,6 +5,16 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { pageTransition, staggerContainer, staggerItem } from '@/lib/animations';
 import { logError } from '@/lib/utils/errorLogger';
+import {
+  glassCard,
+  glassCardInteractive,
+  glassHero,
+  glassStatCard,
+  glassPanel,
+  glassButton,
+  glassDarkZone,
+  glassLightZone,
+} from '@/lib/glassmorphism';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -504,7 +514,7 @@ export default function CollegeCoachDashboard() {
 
             {/* Program Info Card */}
             <div className="flex-1 min-w-0">
-              <div className="backdrop-blur-sm bg-white/5 rounded-2xl p-4 md:p-5 border border-white/10">
+              <div className={`${glassCard} p-4 md:p-5`}>
                 <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                   {programName}
                 </h1>
@@ -624,7 +634,7 @@ export default function CollegeCoachDashboard() {
           {/* LEFT COLUMN - Activity Feed */}
           <div className="space-y-5">
             {/* Activity & Followers Feed */}
-            <Card glass className="rounded-2xl overflow-hidden">
+            <div className={`${glassPanel} overflow-hidden`}>
               <div className="px-5 py-4 border-b border-border/50 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -667,13 +677,13 @@ export default function CollegeCoachDashboard() {
                   </button>
                 </Link>
               </div>
-            </Card>
+            </div>
           </div>
 
           {/* RIGHT COLUMN - Pipeline + Camps */}
           <div className="space-y-5">
             {/* Recruiting Pipeline */}
-            <Card glass className="rounded-2xl p-5">
+            <div className={`${glassPanel} p-5`}>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-semibold text-foreground">Recruiting Pipeline</h2>
@@ -736,7 +746,7 @@ export default function CollegeCoachDashboard() {
                   </Button>
                 </Link>
               </div>
-            </Card>
+            </div>
 
             {/* Upcoming Camps - Horizontal Scroll */}
             <Card glass className="rounded-2xl p-5">
@@ -809,7 +819,7 @@ function MetricCard({ icon, value, label, trend, trendDirection, accentColor, on
   return (
     <button
       onClick={onClick}
-      className="group relative backdrop-blur-2xl bg-white/10 border border-white/15 rounded-2xl shadow-xl shadow-black/20 p-4 md:p-5 text-left transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:border-white/25 overflow-hidden"
+      className={`${glassStatCard} p-4 md:p-5 text-left overflow-hidden`}
     >
       {/* Accent glow on hover */}
       <div 

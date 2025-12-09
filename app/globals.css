@@ -2,6 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
+/* React Big Calendar Custom Styles */
+.rbc-calendar {
+  color: white;
+  background: transparent;
+}
+
+.rbc-header {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  padding: 12px 8px;
+  font-weight: 600;
+  color: white;
+}
+
+.rbc-time-slot {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.rbc-today {
+  background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.rbc-current-time-indicator {
+  background-color: #10b981;
+}
+
+.rbc-event {
+  border-radius: 4px;
+  border: none;
+  color: white;
+}
+
+.rbc-event.rbc-selected {
+  outline: 2px solid #10b981;
+}
+
+.rbc-slot-selection {
+  background-color: rgba(16, 185, 129, 0.2);
+}
+
+.rbc-toolbar {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rbc-toolbar button {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.rbc-toolbar button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.rbc-month-view {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.rbc-month-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rbc-day-bg {
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rbc-date-cell {
+  padding: 4px 8px;
+  color: white;
+}
+
+.rbc-off-range-bg {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rbc-off-range {
+  color: rgba(255, 255, 255, 0.4);
+}
+
 /**
  * ScoutPulse Global Styles
  * ========================

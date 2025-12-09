@@ -52,6 +52,16 @@ import {
   Building2,
   Trash2,
 } from 'lucide-react';
+import {
+  glassCard,
+  glassCardInteractive,
+  glassHero,
+  glassStatCard,
+  glassPanel,
+  glassButton,
+  glassDarkZone,
+  glassLightZone,
+} from '@/lib/glassmorphism';
 import type { Player } from '@/lib/types';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -135,6 +145,7 @@ export default function PlayerDashboardPage() {
   const [statsDateRange, setStatsDateRange] = useState<'7d' | '30d' | 'season'>('season');
   const [teamHubTab, setTeamHubTab] = useState<'messages' | 'schedule'>('messages');
   const [collegeJourneyTab, setCollegeJourneyTab] = useState<'matches' | 'favorites' | 'interested'>('matches');
+  const [showStatsModal, setShowStatsModal] = useState(false);
   
   const tabsRef = useRef<HTMLDivElement>(null);
   const [isTabsSticky, setIsTabsSticky] = useState(false);
@@ -751,8 +762,8 @@ export default function PlayerDashboardPage() {
                           {recruitingData.schools.slice(0, 8).map((school) => (
                             <button
                               key={school.id}
-                              onClick={() => router.push('/player/discover')}
-                              aria-label={`View ${school.name} profile`}
+                              onClick={() => router.push(`/coach/program/${school.id}`)}
+                              aria-label={`View ${school.name} program`}
                               className="flex-shrink-0 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:border-purple-400/30 hover:bg-white/[0.06] transition-all duration-150 group"
                             >
                               <div className="w-9 h-9 rounded-lg bg-purple-500/15 border border-purple-500/20 flex items-center justify-center">
@@ -863,24 +874,33 @@ export default function PlayerDashboardPage() {
               <TabsContent value="stats" className="mt-6 space-y-6">
                 {/* Quick Stats Summary Card */}
                 <LightCard>
-                  <LightCardHeader 
+                  <LightCardHeader
                     icon={<BarChart3 className="w-5 h-5 text-emerald-600" />}
                     title="Season Statistics"
                     action={
-                      <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
-                        {(['season', '30d', '7d'] as const).map((range) => (
-                          <button
-                            key={range}
-                            onClick={() => setStatsDateRange(range)}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                              statsDateRange === range 
-                                ? 'bg-white text-slate-900 shadow-sm' 
-                                : 'text-slate-500 hover:text-slate-700'
-                            }`}
-                          >
-                            {range === 'season' ? 'Season' : range === '30d' ? '30 Days' : '7 Days'}
-                          </button>
-                        ))}
+                      <div className="flex items-center gap-3">
+                        <Button
+                          onClick={() => setShowStatsModal(true)}
+                          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Update Stats
+                        </Button>
+                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
+                          {(['season', '30d', '7d'] as const).map((range) => (
+                            <button
+                              key={range}
+                              onClick={() => setStatsDateRange(range)}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                statsDateRange === range
+                                  ? 'bg-white text-slate-900 shadow-sm'
+                                  : 'text-slate-500 hover:text-slate-700'
+                              }`}
+                            >
+                              {range === 'season' ? 'Season' : range === '30d' ? '30 Days' : '7 Days'}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     }
                   />
@@ -1034,7 +1054,11 @@ export default function PlayerDashboardPage() {
                         )}
                         <div className="space-y-2">
                           {recruitingData.schools.map((school) => (
-                            <div key={school.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                            <button
+                              key={school.id}
+                              onClick={() => router.push(`/coach/program/${school.id}`)}
+                              className="w-full text-left flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-slate-200 hover:bg-slate-100/50 transition-colors"
+                            >
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
                                   <School className="w-5 h-5 text-purple-600" />
@@ -1047,7 +1071,7 @@ export default function PlayerDashboardPage() {
                               <Badge className={getStatusBadgeClass(school.status)}>
                                 {school.status}
                               </Badge>
-                            </div>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -1213,6 +1237,18 @@ export default function PlayerDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Stats Modal */}
+      <AddStatsModal
+        open={showStatsModal}
+        onClose={() => setShowStatsModal(false)}
+        playerId={player.id}
+        onSuccess={() => {
+          // Refresh stats data
+          loadPlayerData();
+          setShowStatsModal(false);
+        }}
+      />
     </motion.div>
   );
 }

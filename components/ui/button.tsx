@@ -22,6 +22,9 @@ const buttonVariants = cva(
           'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm hover:from-blue-600 hover:to-cyan-500',
         success:
           'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-sm hover:from-emerald-600 hover:to-green-500',
+        glassPrimary: "backdrop-blur-xl bg-gradient-to-br from-emerald-500/90 to-emerald-600/90 border border-white/20 shadow-lg shadow-emerald-500/30 text-white rounded-lg px-6 py-3 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300",
+        glassSecondary: "backdrop-blur-xl bg-white/10 border border-white/20 text-white rounded-lg px-6 py-3 hover:bg-white/15 hover:-translate-y-0.5 transition-all duration-300",
+        glassGhost: "backdrop-blur-xl bg-transparent border border-white/10 text-white/90 rounded-lg px-6 py-3 hover:bg-white/5 hover:border-white/20 transition-all duration-300",
       },
       size: {
         default: 'h-11 px-5',

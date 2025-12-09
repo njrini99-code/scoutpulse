@@ -57,12 +57,14 @@ export default function PlayerTeamPage() {
   const [coachEmail, setCoachEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [teamType, setTeamType] = useState<'high_school' | 'showcase'>('high_school');
+  const [noTeamFound, setNoTeamFound] = useState(false);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(teamType);
+  }, [teamType]);
 
-  const loadData = async () => {
+  const loadData = async (selectedTeamType: 'high_school' | 'showcase' = 'high_school') => {
     const supabase = createClient();
     
     let playerId: string | null = null;
@@ -95,11 +97,20 @@ export default function PlayerTeamPage() {
       return;
     }
     
-    const teamData = await getPlayerTeam(playerId);
+    const teamData = await getPlayerTeam(playerId, selectedTeamType);
     if (!teamData) {
+      setTeam(null);
+      setMembers([]);
+      setEvents([]);
+      setMedia([]);
+      setCoachName(null);
+      setCoachEmail(null);
+      setNoTeamFound(true);
       setLoading(false);
       return;
     }
+
+    setNoTeamFound(false);
 
     setTeam(teamData);
 
@@ -155,9 +166,14 @@ export default function PlayerTeamPage() {
             <div className="w-16 h-16 mx-auto rounded-full bg-white/[0.06] flex items-center justify-center mb-4">
               <Users className="w-8 h-8 text-white/30" />
             </div>
-            <h2 className="text-xl font-semibold text-white mb-2">No Team Found</h2>
+            <h2 className="text-xl font-semibold text-white mb-2">
+              {noTeamFound ? `No ${teamType === 'high_school' ? 'High School' : 'Showcase'} Team Found` : 'No Team Found'}
+            </h2>
             <p className="text-white/60 max-w-md mx-auto">
-              You haven't been added to a team yet. Contact your coach to get added to your team's roster.
+              {noTeamFound
+                ? `You don't have a ${teamType === 'high_school' ? 'high school' : 'showcase'} team yet. Try switching to the other team type or contact your coach.`
+                : "You haven't been added to a team yet. Contact your coach to get added to your team's roster."
+              }
             </p>
           </div>
         </div>
@@ -179,7 +195,31 @@ export default function PlayerTeamPage() {
       ═══════════════════════════════════════════════════════════════════ */}
       <div className={glassDarkZone}>
         <div className="max-w-6xl mx-auto px-4 md:px-6 pt-6 pb-8 space-y-6">
-          
+
+          {/* Team Type Toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTeamType('high_school')}
+              className={`px-4 py-2 rounded-lg transition-all ${
+                teamType === 'high_school'
+                  ? 'bg-emerald-500 text-white shadow-lg'
+                  : 'bg-white/5 text-white/60 hover:bg-white/10'
+              }`}
+            >
+              🏫 High School
+            </button>
+            <button
+              onClick={() => setTeamType('showcase')}
+              className={`px-4 py-2 rounded-lg transition-all ${
+                teamType === 'showcase'
+                  ? 'bg-emerald-500 text-white shadow-lg'
+                  : 'bg-white/5 text-white/60 hover:bg-white/10'
+              }`}
+            >
+              ⚾ Showcase/Travel
+            </button>
+          </div>
+
           {/* Team Hero Banner */}
           <section className="relative overflow-hidden rounded-3xl">
             {/* Background */}
