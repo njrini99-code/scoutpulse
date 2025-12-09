@@ -96,3 +96,56 @@ export async function addPlayerToWatchlist(
   }
   return true;
 }
+
+export async function addNoteToRecruit(
+  coachId: string,
+  playerId: string,
+  note: string
+): Promise<boolean> {
+  const supabase = createClient();
+
+  // First, check if the player is already on the watchlist
+  const { data: existing } = await supabase
+    .from('recruit_watchlist')
+    .select('id, notes')
+    .eq('coach_id', coachId)
+    .eq('player_id', playerId)
+    .single();
+
+  if (existing) {
+    // Append note to existing notes
+    const timestamp = new Date().toISOString();
+    const existingNotes = existing.notes || '';
+    const newNotes = existingNotes
+      ? `${existingNotes}\n\n---\n${timestamp}\n${note}`
+      : `${timestamp}\n${note}`;
+
+    const { error } = await supabase
+      .from('recruit_watchlist')
+      .update({ notes: newNotes, updated_at: timestamp })
+      .eq('id', existing.id);
+
+    if (error) {
+      console.error('Failed to update note:', error);
+      return false;
+    }
+  } else {
+    // Add player to watchlist with note
+    const timestamp = new Date().toISOString();
+    const { error } = await supabase
+      .from('recruit_watchlist')
+      .insert({
+        coach_id: coachId,
+        player_id: playerId,
+        status: 'watchlist',
+        notes: `${timestamp}\n${note}`,
+      });
+
+    if (error) {
+      console.error('Failed to add player with note:', error);
+      return false;
+    }
+  }
+
+  return true;
+}

@@ -320,11 +320,19 @@ export default function CollegeCoachDiscoverPage() {
   };
 
   const handleScoutCardAddNote = async (playerId: string, note: string) => {
-    // TODO: Implement note adding in database
-    toast.success('Note saved');
-    // Note: Using console.log for development debugging of TODO feature
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Add note:', playerId, note);
+    if (!coachId) {
+      toast.error('Coach ID not found');
+      return;
+    }
+
+    // Import the addNoteToRecruit function
+    const { addNoteToRecruit } = await import('@/lib/queries/watchlist');
+
+    const success = await addNoteToRecruit(coachId, playerId, note);
+    if (success) {
+      toast.success('Note saved successfully');
+    } else {
+      toast.error('Failed to save note');
     }
   };
 
