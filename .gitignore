@@ -10,3 +10,6 @@ anthropic-quickstarts
 logs/
 .next/cache/
 .taskmaster/
+
+# TypeScript build cache
+*.tsbuildinfo
