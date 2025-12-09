@@ -21,10 +21,21 @@ interface AddStatsModalProps {
   playerId: string;
   onSuccess?: () => void;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onClose?: () => void;
 }
 
-export function AddStatsModal({ playerId, onSuccess, trigger }: AddStatsModalProps) {
-  const [open, setOpen] = useState(false);
+export function AddStatsModal({ playerId, onSuccess, trigger, open: controlledOpen, onClose }: AddStatsModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      setInternalOpen(false);
+    }
+  };
   const [saving, setSaving] = useState(false);
   const [statType, setStatType] = useState<'hitting' | 'pitching'>('hitting');
   
@@ -104,7 +115,7 @@ export function AddStatsModal({ playerId, onSuccess, trigger }: AddStatsModalPro
       }
 
       toast.success('Stats added successfully!');
-      setOpen(false);
+      handleClose();
       // Reset form
       setFormData({
         stat_date: new Date().toISOString().split('T')[0],
@@ -124,7 +135,7 @@ export function AddStatsModal({ playerId, onSuccess, trigger }: AddStatsModalPro
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" size="sm">
@@ -321,7 +332,7 @@ export function AddStatsModal({ playerId, onSuccess, trigger }: AddStatsModalPro
           </Tabs>
           
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
             <Button type="submit" disabled={saving} className="bg-emerald-600 hover:bg-emerald-500">

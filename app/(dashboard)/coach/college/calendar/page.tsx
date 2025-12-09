@@ -8,18 +8,21 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Plus, 
-  Cloud, 
+import {
+  Plus,
+  Cloud,
   Loader2,
   Calendar as CalendarIcon,
   List,
   LayoutGrid,
 } from 'lucide-react';
+import { Calendar, dateFnsLocalizer, View } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { toast } from 'sonner';
 import { isDevMode, DEV_ENTITY_IDS } from '@/lib/dev-mode';
 import {
-  CalendarView,
   UpcomingEventsPanel,
   QuickActionsPanel,
   PlayerSchedulePanel,
@@ -37,7 +40,20 @@ import {
 } from '@/lib/queries/calendar';
 import { getTodayLocal } from '@/lib/utils/date';
 
-type ViewMode = 'month' | 'week' | 'agenda';
+// Setup react-big-calendar localizer
+const locales = {
+  'en-US': enUS,
+};
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
+type ViewMode = View; // 'month' | 'week' | 'day' | 'agenda'
 
 export default function CollegeCoachCalendarPage() {
   const router = useRouter();
@@ -121,6 +137,13 @@ export default function CollegeCoachCalendarPage() {
   const handleEventClick = (event: CalendarEvent) => {
     setEditingEvent(event);
     setPreselectedDate('');
+    setPreselectedType(undefined);
+    setModalOpen(true);
+  };
+
+  const handleSlotSelect = (slotInfo: { start: Date; end: Date }) => {
+    const { start } = slotInfo;
+    setPreselectedDate(start.toISOString().split('T')[0]);
     setPreselectedType(undefined);
     setModalOpen(true);
   };
@@ -259,11 +282,48 @@ export default function CollegeCoachCalendarPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Calendar (takes 2 columns) */}
           <div className="lg:col-span-2">
-            <CalendarView
-              events={events}
-              onDayClick={handleDayClick}
-              onEventClick={handleEventClick}
-            />
+            {/* View toggles */}
+            <div className="flex gap-2 mb-4">
+              {['month', 'week', 'day', 'agenda'].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setViewMode(v as View)}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    viewMode === v
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                >
+                  {v.charAt(0).toUpperCase() + v.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {/* Calendar */}
+            <div className="backdrop-blur-2xl bg-white/10 border border-white/15 rounded-2xl p-6 h-[600px]">
+              <Calendar
+                localizer={localizer}
+                events={events.map(event => ({
+                  id: event.id,
+                  title: event.title,
+                  start: event.startTime && event.date ? new Date(`${event.date}T${event.startTime}`) : new Date(event.date),
+                  end: event.endTime && event.date ? new Date(`${event.date}T${event.endTime}`) : new Date(event.date),
+                  resource: event,
+                }))}
+                startAccessor="start"
+                endAccessor="end"
+                view={viewMode}
+                onView={setViewMode}
+                style={{ height: '100%' }}
+                onSelectEvent={(event) => handleEventClick(event.resource)}
+                onSelectSlot={(slotInfo) => handleSlotSelect(slotInfo)}
+                selectable
+                components={{
+                  event: CustomEvent,
+                  toolbar: CustomToolbar,
+                }}
+              />
+            </div>
           </div>
 
           {/* Right Sidebar */}
@@ -314,3 +374,53 @@ export default function CollegeCoachCalendarPage() {
     </div>
   );
 }
+
+// Custom event component with glass styling
+const CustomEvent = ({ event }: any) => {
+  const eventColors: Record<string, { bg: string; border: string }> = {
+    camp: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/30' },
+    evaluation: { bg: 'bg-blue-500/20', border: 'border-blue-500/30' },
+    visit: { bg: 'bg-purple-500/20', border: 'border-purple-500/30' },
+    other: { bg: 'bg-slate-500/20', border: 'border-slate-500/30' },
+  };
+
+  const colors = eventColors[event.resource?.type] || eventColors.other;
+
+  return (
+    <div className={`backdrop-blur-xl ${colors.bg} ${colors.border} border rounded px-2 py-1 text-xs text-white`}>
+      <div className="font-semibold truncate">{event.title}</div>
+      {event.resource?.player_name && (
+        <div className="text-white/70 truncate">{event.resource.player_name}</div>
+      )}
+    </div>
+  );
+};
+
+// Custom toolbar component
+const CustomToolbar = ({ label, onNavigate, onView }: any) => {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => onNavigate('PREV')}
+          className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors"
+        >
+          ‹
+        </button>
+        <h2 className="text-xl font-semibold text-white">{label}</h2>
+        <button
+          onClick={() => onNavigate('NEXT')}
+          className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors"
+        >
+          ›
+        </button>
+      </div>
+      <button
+        onClick={() => onNavigate('TODAY')}
+        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors"
+      >
+        Today
+      </button>
+    </div>
+  );
+};

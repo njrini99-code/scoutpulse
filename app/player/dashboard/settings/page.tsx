@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { logError } from '@/lib/utils/errorLogger';
 import { Card } from '@/components/ui/card';
 import { PlayerProfileForm } from '@/components/player/dashboard/Settings/player-profile-form';
+import { PlayerTeamHistory } from '@/components/player/dashboard/Settings/player-team-history';
 import { PlayerVisibilitySettings } from '@/components/player/dashboard/Settings/player-visibility-settings';
 import { PlayerNotificationSettings } from '@/components/player/dashboard/Settings/player-notification-settings';
 import { getPlayerSettings } from '@/lib/api/player/getPlayerSettings';
@@ -54,6 +55,7 @@ export default function PlayerSettingsPage() {
   return (
     <div className="space-y-6">
       <PlayerProfileForm player={player} profile={profile} />
+      <PlayerTeamHistory playerId={player.id} />
       <div className="grid gap-6 md:grid-cols-2">
         <PlayerVisibilitySettings settings={settings} />
         <PlayerNotificationSettings settings={settings} />

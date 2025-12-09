@@ -29,7 +29,7 @@ import {
   Zap,
   Activity,
   BarChart3,
-  LineChartIcon,
+  ChartLine,
 } from 'lucide-react';
 import type { PlayerGameSeriesPoint, PlayerStatsSummary } from '@/lib/api/player/getPlayerStatsSeries';
 
@@ -177,7 +177,7 @@ export function PlayerStatsCharts({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-emerald-100">
-            <LineChartIcon className="w-5 h-5 text-emerald-600" />
+            <ChartLine className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-800">Performance Trends</h3>

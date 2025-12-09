@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
@@ -15,6 +17,7 @@ import { TestimonialsCarousel } from '@/components/landing/TestimonialsCarousel'
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
 import { ScrollProgress } from '@/components/landing/ScrollProgress';
 import { SectionDivider } from '@/components/landing/SectionDivider';
+import { DevModeSelector } from '@/components/dev/DevModeSelector';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -90,14 +93,12 @@ export default function HomePage() {
         // DEV MODE - Redirect based on dev role
         // ═══════════════════════════════════════════════════════════════════
         if (isDevMode()) {
-          const devRole = getDevRole();
+          const devRole = getDevRole() || 'player';
           
-          let userType: UserType = 'coach';
+          let userType: UserType = 'player';
           let coachType: CoachType | null = null;
           
-          if (devRole === 'player') {
-            userType = 'player';
-          } else {
+          if (devRole !== 'player') {
             userType = 'coach';
             coachType = devRole === 'high-school' ? 'high_school' 
               : devRole === 'juco' ? 'juco'
@@ -213,8 +214,11 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 bg-slate-950/80 border-b border-white/5 backdrop-blur-xl">
         <nav className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold text-white tracking-tight">
-              Scout<span className="bg-gradient-to-r from-emerald-400 to-teal-400 text-transparent bg-clip-text">Pulse</span>
+            <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-white tracking-tight">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/50">
+                <span className="text-white font-black text-lg">SP</span>
+              </div>
+              <span>Scout<span className="bg-gradient-to-r from-emerald-400 to-teal-400 text-transparent bg-clip-text">Pulse</span></span>
             </Link>
             
             <div className="hidden md:flex items-center gap-8">
@@ -266,13 +270,19 @@ export default function HomePage() {
       {/* FINAL CTA */}
       <FinalCTASection />
 
+      {/* Dev Mode Selector */}
+      <DevModeSelector />
+
       {/* Footer */}
       <footer className="relative bg-slate-950 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
-              <Link href="/" className="text-2xl font-bold text-white mb-2 inline-block">
-                Scout<span className="bg-gradient-to-r from-emerald-400 to-teal-400 text-transparent bg-clip-text">Pulse</span>
+              <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-white mb-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/50">
+                  <span className="text-white font-black text-lg">SP</span>
+                </div>
+                <span>Scout<span className="bg-gradient-to-r from-emerald-400 to-teal-400 text-transparent bg-clip-text">Pulse</span></span>
               </Link>
               <p className="text-sm text-white/40">Modern. Simple. Trusted.</p>
             </div>

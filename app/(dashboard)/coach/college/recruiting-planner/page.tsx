@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { addPlayerToWatchlist, getRecruitingPipelineForCoach, updateRecruitStatus, type RecruitPipelineEntry } from '@/lib/queries/recruits';
 import { createClient } from '@/lib/supabase/client';
-import { 
-  Loader2, Plus, NotebookPen, ArrowRightLeft, MoreHorizontal, 
-  Eye, ExternalLink, User
+import {
+  Loader2, Plus, NotebookPen, ArrowRightLeft, MoreHorizontal,
+  Eye, ExternalLink, User, Info
 } from 'lucide-react';
 import {
   Select,
@@ -188,9 +188,18 @@ export default function RecruitingPlannerPage() {
   const [pendingNote, setPendingNote] = useState('');
   const [newPlayerId, setNewPlayerId] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     loadPipeline();
+
+    // Check if user has seen tutorial
+    if (typeof window !== 'undefined') {
+      const hasSeenTutorial = localStorage.getItem('recruiting-planner-tutorial-seen');
+      if (!hasSeenTutorial) {
+        setShowTutorial(true);
+      }
+    }
   }, []);
 
   const loadPipeline = async () => {
@@ -330,6 +339,13 @@ export default function RecruitingPlannerPage() {
     router.push(`/coach/college/player/${playerId}`);
   }, [router]);
 
+  const markTutorialSeen = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('recruiting-planner-tutorial-seen', 'true');
+    }
+    setShowTutorial(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -344,10 +360,41 @@ export default function RecruitingPlannerPage() {
         
         {/* Header / Filters */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
+          <div className="flex items-center gap-2">
             <h1 className="text-xl font-semibold text-slate-900">Recruiting Planner</h1>
-            <p className="text-sm text-slate-500 mt-0.5">Visualize your recruiting class by position.</p>
+
+            {/* Info Tooltip */}
+            <div className="group relative">
+              <button className="w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+                <Info className="w-4 h-4 text-slate-500" />
+              </button>
+
+              {/* Tooltip */}
+              <div className="absolute left-8 top-0 w-80 backdrop-blur-xl bg-white border border-slate-200 rounded-xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-lg">
+                <h4 className="font-semibold text-slate-800 mb-2">How to Add Players</h4>
+                <p className="text-sm text-slate-600 mb-2">
+                  Click the "Add Player" button, then either:
+                </p>
+                <ul className="text-sm text-slate-600 space-y-1 list-disc list-inside">
+                  <li>Search by player name</li>
+                  <li>Enter player ID from their profile</li>
+                  <li>Select from your watchlist</li>
+                </ul>
+
+                <div className="border-t border-slate-200 pt-3 mt-3">
+                  <h4 className="font-semibold text-slate-800 mb-2">Diamond Visualization</h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                    <div><strong>🏠 Home:</strong> New prospects</div>
+                    <div><strong>1️⃣ First:</strong> Initial contact</div>
+                    <div><strong>2️⃣ Second:</strong> Actively recruiting</div>
+                    <div><strong>3️⃣ Third:</strong> Strong interest</div>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">Drag players between bases as recruiting progresses!</p>
+                </div>
+              </div>
+            </div>
           </div>
+          <p className="text-sm text-slate-500 mt-0.5">Visualize your recruiting class by position.</p>
           
           <div className="flex flex-wrap items-center gap-2">
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
@@ -505,10 +552,70 @@ export default function RecruitingPlannerPage() {
       </div>
       
       {/* Confetti celebration */}
-      <Confetti 
-        show={showConfetti} 
-        onComplete={() => setShowConfetti(false)} 
+      <Confetti
+        show={showConfetti}
+        onComplete={() => setShowConfetti(false)}
       />
+
+      {/* First-time user tutorial */}
+      {showTutorial && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="backdrop-blur-2xl bg-white border border-slate-200 rounded-2xl p-8 max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-3xl font-bold text-slate-800 mb-4">Welcome to the Recruiting Planner!</h2>
+
+            <div className="space-y-4 text-slate-700">
+              <p className="text-lg">This diamond visualization helps you manage your recruiting pipeline.</p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 p-4 rounded-lg">
+                  <div className="font-semibold mb-1 text-emerald-600">🏠 Home</div>
+                  <div className="text-sm">New prospects you're evaluating</div>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-lg">
+                  <div className="font-semibold mb-1 text-blue-600">1️⃣ First Base</div>
+                  <div className="text-sm">Initial contact made</div>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-lg">
+                  <div className="font-semibold mb-1 text-purple-600">2️⃣ Second Base</div>
+                  <div className="text-sm">Actively recruiting</div>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-lg">
+                  <div className="font-semibold mb-1 text-amber-600">3️⃣ Third Base</div>
+                  <div className="text-sm">Strong interest, close to offer</div>
+                </div>
+              </div>
+
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <p className="font-semibold text-emerald-800 mb-2">💡 To add a player:</p>
+                <ol className="list-decimal list-inside space-y-2 text-sm text-emerald-700">
+                  <li>Click "Add Player" button</li>
+                  <li>Search by name or enter Player ID (found on their profile)</li>
+                  <li>Player will appear at Home base</li>
+                  <li>Drag players between bases as recruiting progresses</li>
+                  <li>When they commit, drag to the center for confetti! 🎉</li>
+                </ol>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="font-semibold text-blue-800 mb-2">📊 Pro Tips:</p>
+                <ul className="list-disc list-inside space-y-1 text-sm text-blue-700">
+                  <li>Click on any player pill to highlight them in the pipeline</li>
+                  <li>Use the filters to focus on specific recruiting statuses</li>
+                  <li>Right-click players for quick actions</li>
+                  <li>The diamond shows your recruiting class by position</li>
+                </ul>
+              </div>
+            </div>
+
+            <button
+              onClick={markTutorialSeen}
+              className="mt-6 w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-colors"
+            >
+              Got it! Let's start recruiting
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
