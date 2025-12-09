@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useState } from 'react';
-import { addTeamMedia } from '@/lib/queries/team';
+import { addTeamMedia, deleteTeamMedia } from '@/lib/queries/team';
 import { toast } from 'sonner';
 
 interface TeamMediaProps {
@@ -62,6 +62,16 @@ export function TeamMedia({ teamId, media, mode, onUpdate }: TeamMediaProps) {
       onUpdate?.();
     } else {
       toast.error('Failed to add media');
+    }
+  };
+
+  const handleDeleteMedia = async (mediaId: string) => {
+    const success = await deleteTeamMedia(mediaId);
+    if (success) {
+      toast.success('Media deleted');
+      onUpdate?.();
+    } else {
+      toast.error('Failed to delete media');
     }
   };
 
@@ -172,10 +182,7 @@ export function TeamMedia({ teamId, media, mode, onUpdate }: TeamMediaProps) {
                           variant="ghost"
                           size="sm"
                           className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/80 hover:bg-red-500"
-                          onClick={() => {
-                            // TODO: Implement delete
-                            toast.info('Delete functionality coming soon');
-                          }}
+                          onClick={() => handleDeleteMedia(item.id)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -218,10 +225,7 @@ export function TeamMedia({ teamId, media, mode, onUpdate }: TeamMediaProps) {
                           variant="ghost"
                           size="sm"
                           className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/80 hover:bg-red-500"
-                          onClick={() => {
-                            // TODO: Implement delete
-                            toast.info('Delete functionality coming soon');
-                          }}
+                          onClick={() => handleDeleteMedia(item.id)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

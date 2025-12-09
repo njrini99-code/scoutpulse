@@ -153,7 +153,11 @@ export async function getTeamRoster(teamId: string): Promise<TeamMember[]> {
       team_id,
       player_id,
       role,
+      status,
+      primary_team,
+      jersey_number,
       joined_at,
+      updated_at,
       players:player_id (
         id,
         first_name,
@@ -179,13 +183,13 @@ export async function getTeamRoster(teamId: string): Promise<TeamMember[]> {
     id: membership.id,
     team_id: membership.team_id,
     player_id: membership.player_id,
-    status: 'active' as const, // TODO: Add status column to team_memberships
-    primary_team: true, // TODO: Add primary_team column
-    jersey_number: null, // TODO: Add jersey_number column
+    status: membership.status || 'active',
+    primary_team: membership.primary_team ?? true,
+    jersey_number: membership.jersey_number || null,
     graduation_year: membership.players?.grad_year || null,
     role_notes: membership.role || null,
     created_at: membership.joined_at,
-    updated_at: membership.joined_at,
+    updated_at: membership.updated_at || membership.joined_at,
     player: {
       id: membership.players?.id || membership.player_id,
       full_name: membership.players?.full_name || 
@@ -206,44 +210,19 @@ export async function getTeamRoster(teamId: string): Promise<TeamMember[]> {
  */
 export async function getTeamSchedule(teamId: string): Promise<ScheduleEvent[]> {
   const supabase = createClient();
-  
-  // TODO: Use team_schedule table when migration is added
-  // For now, return empty array or use camp_events if team has coach_id
-  const { data: team } = await supabase
-    .from('teams')
-    .select('coach_id')
-    .eq('id', teamId)
-    .single();
 
-  if (!team) return [];
-
-  // Use camp_events as placeholder (will be replaced with team_schedule)
   const { data: events, error } = await supabase
-    .from('camp_events')
+    .from('team_schedule')
     .select('*')
-    .eq('coach_id', team.coach_id)
-    .order('event_date', { ascending: true });
+    .eq('team_id', teamId)
+    .order('start_time', { ascending: true });
 
   if (error || !events) {
+    console.error('Error fetching team schedule:', error);
     return [];
   }
 
-  // Map to ScheduleEvent format
-  return events.map((event: any) => ({
-    id: event.id,
-    team_id: teamId,
-    event_type: event.event_type === 'Prospect Camp' ? 'showcase' : 'game' as any,
-    opponent_name: null,
-    event_name: event.name,
-    location_name: event.location,
-    location_address: null,
-    start_time: event.event_date ? `${event.event_date}T${event.start_time || '00:00:00'}` : new Date().toISOString(),
-    end_time: event.end_time ? `${event.event_date}T${event.end_time}` : null,
-    notes: event.description,
-    is_public: event.is_public,
-    created_at: event.created_at,
-    updated_at: event.updated_at,
-  }));
+  return events as ScheduleEvent[];
 }
 
 /**
@@ -251,10 +230,19 @@ export async function getTeamSchedule(teamId: string): Promise<ScheduleEvent[]> 
  */
 export async function getTeamMedia(teamId: string): Promise<TeamMedia[]> {
   const supabase = createClient();
-  
-  // TODO: Use team_media table when migration is added
-  // For now, return empty array
-  return [];
+
+  const { data: media, error } = await supabase
+    .from('team_media')
+    .select('*')
+    .eq('team_id', teamId)
+    .order('created_at', { ascending: false });
+
+  if (error || !media) {
+    console.error('Error fetching team media:', error);
+    return [];
+  }
+
+  return media as TeamMedia[];
 }
 
 /**
@@ -302,30 +290,19 @@ export async function addScheduleEvent(
   event: Omit<ScheduleEvent, 'id' | 'team_id' | 'created_at' | 'updated_at'>
 ): Promise<string | null> {
   const supabase = createClient();
-  
-  // TODO: Use team_schedule table when migration is added
-  // For now, use camp_events as placeholder
-  const { data: team } = await supabase
-    .from('teams')
-    .select('coach_id')
-    .eq('id', teamId)
-    .single();
-
-  if (!team) return null;
 
   const { data, error } = await supabase
-    .from('camp_events')
+    .from('team_schedule')
     .insert({
-      coach_id: team.coach_id,
-      name: event.event_name || event.opponent_name || 'Event',
-      event_date: event.start_time.split('T')[0],
-      start_time: event.start_time.split('T')[1]?.split('.')[0] || null,
-      end_time: event.end_time?.split('T')[1]?.split('.')[0] || null,
-      event_type: event.event_type === 'game' ? 'Game' : 
-                  event.event_type === 'practice' ? 'Practice' :
-                  event.event_type === 'tournament' ? 'Tournament' : 'Prospect Camp',
-      description: event.notes,
-      location: event.location_name || event.location_address || null,
+      team_id: teamId,
+      event_type: event.event_type,
+      opponent_name: event.opponent_name,
+      event_name: event.event_name,
+      location_name: event.location_name,
+      location_address: event.location_address,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      notes: event.notes,
       is_public: event.is_public,
     })
     .select('id')
@@ -344,15 +321,18 @@ export async function addScheduleEvent(
  */
 export async function deleteScheduleEvent(eventId: string): Promise<boolean> {
   const supabase = createClient();
-  
-  // TODO: Use team_schedule table when migration is added
-  // For now, delete from camp_events
+
   const { error } = await supabase
-    .from('camp_events')
+    .from('team_schedule')
     .delete()
     .eq('id', eventId);
 
-  return !error;
+  if (error) {
+    console.error('Error deleting schedule event:', error);
+    return false;
+  }
+
+  return true;
 }
 
 /**
@@ -363,10 +343,44 @@ export async function addTeamMedia(
   media: Omit<TeamMedia, 'id' | 'team_id' | 'created_at'>
 ): Promise<string | null> {
   const supabase = createClient();
-  
-  // TODO: Use team_media table when migration is added
-  // For now, return null
-  return null;
+
+  const { data, error } = await supabase
+    .from('team_media')
+    .insert({
+      team_id: teamId,
+      media_type: media.media_type,
+      title: media.title,
+      description: media.description,
+      url: media.url,
+    })
+    .select('id')
+    .single();
+
+  if (error || !data) {
+    console.error('Error adding team media:', error);
+    return null;
+  }
+
+  return data.id;
+}
+
+/**
+ * Delete team media (owner only)
+ */
+export async function deleteTeamMedia(mediaId: string): Promise<boolean> {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from('team_media')
+    .delete()
+    .eq('id', mediaId);
+
+  if (error) {
+    console.error('Error deleting team media:', error);
+    return false;
+  }
+
+  return true;
 }
 
 /**

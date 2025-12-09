@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { getCoachingStaff, addStaffMember, updateStaffMember, deleteStaffMember } from '@/lib/queries/staff';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,10 +53,16 @@ interface Coach {
 
 interface StaffMember {
   id: string;
+  coach_id: string;
   name: string;
   role: string;
-  email: string;
-  status: 'active' | 'pending' | 'inactive';
+  email: string | null;
+  phone: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function CoachSettingsPage() {
@@ -99,8 +106,13 @@ export default function CoachSettingsPage() {
 
   useEffect(() => {
     loadCoachData();
-    loadStaffData();
   }, []);
+
+  useEffect(() => {
+    if (coach?.id) {
+      loadStaffData();
+    }
+  }, [coach?.id]);
 
   async function loadCoachData() {
     try {
@@ -147,19 +159,13 @@ export default function CoachSettingsPage() {
 
   async function loadStaffData() {
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      if (!coach?.id) return;
 
-      if (!user) return;
-
-      // For demo purposes, we'll create mock staff data
-      // In a real app, this would come from a staff_members table
-      setStaff([
-        { id: '1', name: 'John Smith', role: 'Assistant Coach', email: 'john@program.com', status: 'active' },
-        { id: '2', name: 'Sarah Johnson', role: 'Recruiting Coordinator', email: 'sarah@program.com', status: 'active' }
-      ]);
+      const staffData = await getCoachingStaff(coach.id);
+      setStaff(staffData);
     } catch (error) {
       console.error('Error loading staff data:', error);
+      toast.error('Failed to load staff data');
     }
   }
 
@@ -245,35 +251,58 @@ export default function CoachSettingsPage() {
       return;
     }
 
-    const newStaff: StaffMember = {
-      id: Date.now().toString(),
+    if (!coach?.id) {
+      toast.error('Coach ID not found');
+      return;
+    }
+
+    const success = await addStaffMember(coach.id, {
       name: staffForm.name,
       role: staffForm.role,
       email: staffForm.email,
-      status: 'pending'
-    };
+      phone: null,
+      bio: null,
+      avatar_url: null,
+      is_active: true,
+    });
 
-    setStaff([...staff, newStaff]);
-    setStaffForm({ name: '', role: '', email: '' });
-    setShowAddStaff(false);
-    toast.success('Staff member added successfully');
+    if (success) {
+      toast.success('Staff member added successfully');
+      setStaffForm({ name: '', role: '', email: '' });
+      setShowAddStaff(false);
+      loadStaffData(); // Reload staff list
+    } else {
+      toast.error('Failed to add staff member');
+    }
   };
 
   const handleUpdateStaff = async () => {
     if (!editingStaff) return;
 
-    setStaff(staff.map(s =>
-      s.id === editingStaff.id
-        ? { ...editingStaff }
-        : s
-    ));
-    setEditingStaff(null);
-    toast.success('Staff member updated successfully');
+    const success = await updateStaffMember(editingStaff.id, {
+      name: editingStaff.name,
+      role: editingStaff.role,
+      email: editingStaff.email,
+    });
+
+    if (success) {
+      toast.success('Staff member updated successfully');
+      setEditingStaff(null);
+      loadStaffData(); // Reload staff list
+    } else {
+      toast.error('Failed to update staff member');
+    }
   };
 
   const handleDeleteStaff = async (staffId: string) => {
-    setStaff(staff.filter(s => s.id !== staffId));
-    toast.success('Staff member removed');
+    const success = await deleteStaffMember(staffId);
+
+    if (success) {
+      toast.success('Staff member removed');
+      loadStaffData(); // Reload staff list
+    } else {
+      toast.error('Failed to remove staff member');
+    }
   };
 
   // Google Calendar handlers
@@ -641,8 +670,8 @@ export default function CoachSettingsPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
-                            {member.status}
+                          <Badge variant={member.is_active ? 'default' : 'secondary'}>
+                            {member.is_active ? 'active' : 'inactive'}
                           </Badge>
                           <Button
                             variant="outline"
