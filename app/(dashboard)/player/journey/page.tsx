@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CardSkeleton } from '@/components/ui/loading-state';
+import { toast } from 'sonner';
 import {
   GraduationCap,
   Calendar,
@@ -115,93 +118,10 @@ interface TimelineEvent {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// MOCK DATA
+// DATA FETCHING (Replacing Mock Data)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const MOCK_MILESTONES: Milestone[] = [
-  { id: 'm1', title: 'Complete NCAA Eligibility Center Registration', description: 'Register and submit initial eligibility certification', targetDate: '2024-09-01', completedDate: '2024-08-28', status: 'completed', category: 'administrative', priority: 'high' },
-  { id: 'm2', title: 'Take SAT/ACT', description: 'Complete standardized testing for college admission', targetDate: '2024-10-15', completedDate: '2024-10-12', status: 'completed', category: 'academic', priority: 'high' },
-  { id: 'm3', title: 'Create Recruiting Video', description: 'Film and edit highlight reel for coaches', targetDate: '2024-11-01', completedDate: '2024-10-25', status: 'completed', category: 'athletic', priority: 'high' },
-  { id: 'm4', title: 'Submit FAFSA Application', description: 'Complete financial aid forms', targetDate: '2024-12-15', status: 'in_progress', category: 'administrative', priority: 'high' },
-  { id: 'm5', title: 'Official Visits', description: 'Schedule and complete official campus visits', targetDate: '2025-01-15', status: 'upcoming', category: 'recruiting', priority: 'medium' },
-  { id: 'm6', title: 'Make Final Decision', description: 'Commit to a program', targetDate: '2025-04-01', status: 'upcoming', category: 'recruiting', priority: 'high' },
-  { id: 'm7', title: 'Sign NLI', description: 'National Letter of Intent signing', targetDate: '2025-04-15', status: 'upcoming', category: 'administrative', priority: 'high' },
-];
-
-const MOCK_INTERACTIONS: CollegeInteraction[] = [
-  { id: 'i1', collegeId: 'c1', collegeName: 'Georgia Tech', division: 'D1', type: 'email', date: '2024-11-05', description: 'Initial outreach from recruiting coordinator', contactName: 'Coach Johnson', contactRole: 'Recruiting Coordinator', notes: 'Expressed interest in my pitching stats', followUpDate: '2024-11-12' },
-  { id: 'i2', collegeId: 'c1', collegeName: 'Georgia Tech', division: 'D1', type: 'call', date: '2024-11-08', description: 'Phone call with head coach', contactName: 'Coach Williams', contactRole: 'Head Coach', notes: 'Discussed program culture and opportunities' },
-  { id: 'i3', collegeId: 'c2', collegeName: 'Clemson', division: 'D1', type: 'camp', date: '2024-10-20', description: 'Attended fall prospect camp', notes: 'Performed well, received positive feedback' },
-  { id: 'i4', collegeId: 'c3', collegeName: 'NC State', division: 'D1', type: 'visit', date: '2024-11-01', description: 'Unofficial campus visit', contactName: 'Coach Davis', contactRole: 'Pitching Coach', notes: 'Great facilities, liked the coaching staff' },
-  { id: 'i5', collegeId: 'c1', collegeName: 'Georgia Tech', division: 'D1', type: 'offer', date: '2024-11-10', description: 'Received scholarship offer', notes: '75% scholarship offer' },
-  { id: 'i6', collegeId: 'c4', collegeName: 'Wake Forest', division: 'D1', type: 'showcase', date: '2024-09-15', description: 'PG Showcase attendance', notes: 'Caught attention of multiple scouts' },
-  { id: 'i7', collegeId: 'c2', collegeName: 'Clemson', division: 'D1', type: 'meeting', date: '2024-11-12', description: 'Video call with coaching staff', contactName: 'Coach Thompson', contactRole: 'Assistant Coach' },
-];
-
-const MOCK_OFFERS: Offer[] = [
-  {
-    id: 'o1',
-    collegeId: 'c1',
-    collegeName: 'Georgia Tech',
-    division: 'D1',
-    location: 'Atlanta, GA',
-    conference: 'ACC',
-    status: 'considering',
-    scholarshipType: 'partial',
-    scholarshipPercentage: 75,
-    offerDate: '2024-11-10',
-    deadline: '2024-12-15',
-    daysUntilDeadline: 8,
-    coachName: 'Coach Williams',
-    coachEmail: 'williams@gatech.edu',
-    notes: 'Strong academic program, great facilities',
-    pros: ['Top engineering school', 'ACC competition', 'Close to home', 'Great facilities'],
-    cons: ['High academic rigor', 'Not full scholarship'],
-  },
-  {
-    id: 'o2',
-    collegeId: 'c3',
-    collegeName: 'NC State',
-    division: 'D1',
-    location: 'Raleigh, NC',
-    conference: 'ACC',
-    status: 'considering',
-    scholarshipType: 'partial',
-    scholarshipPercentage: 60,
-    offerDate: '2024-11-05',
-    deadline: '2024-12-20',
-    daysUntilDeadline: 13,
-    coachName: 'Coach Davis',
-    coachEmail: 'davis@ncstate.edu',
-    notes: 'Great baseball tradition',
-    pros: ['Strong baseball program', 'Good campus life', 'Newer facilities'],
-    cons: ['Further from home', 'Lower scholarship'],
-  },
-  {
-    id: 'o3',
-    collegeId: 'c5',
-    collegeName: 'College of Charleston',
-    division: 'D1',
-    location: 'Charleston, SC',
-    conference: 'CAA',
-    status: 'pending',
-    scholarshipType: 'full',
-    scholarshipPercentage: 100,
-    offerDate: '2024-11-08',
-    deadline: '2025-01-15',
-    daysUntilDeadline: 39,
-    coachName: 'Coach Brown',
-    pros: ['Full scholarship', 'Great location', 'Playing time opportunity'],
-    cons: ['Smaller conference', 'Less exposure'],
-  },
-];
-
-const MOCK_DEADLINES = [
-  { id: 'd1', title: 'Georgia Tech Decision', date: '2024-12-15', daysUntil: 8, type: 'offer', urgent: true },
-  { id: 'd2', title: 'NC State Decision', date: '2024-12-20', daysUntil: 13, type: 'offer', urgent: false },
-  { id: 'd3', title: 'FAFSA Deadline', date: '2024-12-15', daysUntil: 8, type: 'administrative', urgent: true },
-  { id: 'd4', title: 'NLI Early Signing', date: '2024-11-13', daysUntil: -1, type: 'recruiting', urgent: false },
-];
+// Mock data removed - now using real Supabase queries in component
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPER COMPONENTS
@@ -270,30 +190,183 @@ export default function PlayerJourneyPage() {
   const [filterCollege, setFilterCollege] = useState<string>('');
   const [expandedOffer, setExpandedOffer] = useState<string | null>(null);
 
+  // Data state
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [interactions, setInteractions] = useState<CollegeInteraction[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [deadlines, setDeadlines] = useState<Array<{
+    id: string;
+    title: string;
+    date: string;
+    daysUntil: number;
+    type: string;
+    urgent: boolean;
+  }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Load data on mount
+  useEffect(() => {
+    loadJourneyData();
+  }, []);
+
+  const loadJourneyData = async () => {
+    try {
+      setLoading(true);
+      const supabase = createClient();
+
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) {
+        toast.error('Please sign in to view your recruiting journey');
+        return;
+      }
+      setUserId(user.id);
+
+      // Load milestones
+      const { data: milestonesData, error: milestonesError } = await supabase
+        .from('recruiting_milestones')
+        .select(`
+          *,
+          college:colleges(name, logo_url)
+        `)
+        .eq('player_id', user.id)
+        .order('milestone_date', { ascending: false });
+
+      if (milestonesError) throw milestonesError;
+
+      // Transform to match interface
+      const transformedMilestones: Milestone[] = (milestonesData || []).map(m => ({
+        id: m.id,
+        title: m.title,
+        description: m.description || '',
+        targetDate: m.milestone_date,
+        completedDate: m.completed_date,
+        status: m.status as MilestoneStatus,
+        category: m.category as any,
+        priority: m.priority as any,
+      }));
+      setMilestones(transformedMilestones);
+
+      // Load interactions
+      const { data: interactionsData, error: interactionsError } = await supabase
+        .from('college_interactions')
+        .select(`
+          *,
+          college:colleges(name, logo_url, city, state)
+        `)
+        .eq('player_id', user.id)
+        .order('interaction_date', { ascending: false })
+        .limit(50);
+
+      if (interactionsError) throw interactionsError;
+
+      const transformedInteractions: CollegeInteraction[] = (interactionsData || []).map(i => ({
+        id: i.id,
+        collegeId: i.college_id,
+        collegeName: i.college?.name || 'Unknown College',
+        collegeLogo: i.college?.logo_url,
+        division: 'D1', // TODO: Add division to colleges table
+        type: i.interaction_type as InteractionType,
+        date: new Date(i.interaction_date).toISOString().split('T')[0],
+        description: i.description || i.subject || '',
+        contactName: i.contact_name,
+        contactRole: i.contact_role,
+        notes: i.notes,
+        followUpDate: i.follow_up_date,
+      }));
+      setInteractions(transformedInteractions);
+
+      // Load offers
+      const { data: offersData, error: offersError } = await supabase
+        .from('scholarship_offers')
+        .select(`
+          *,
+          college:colleges(name, logo_url, city, state, division)
+        `)
+        .eq('player_id', user.id)
+        .order('offer_date', { ascending: false });
+
+      if (offersError) throw offersError;
+
+      const transformedOffers: Offer[] = (offersData || []).map(o => ({
+        id: o.id,
+        collegeId: o.college_id,
+        collegeName: o.college?.name || 'Unknown College',
+        collegeLogo: o.college?.logo_url,
+        division: o.college?.division || o.division || 'D1',
+        location: o.location || `${o.college?.city}, ${o.college?.state}`,
+        conference: o.conference || '',
+        status: o.status as OfferStatus,
+        scholarshipType: o.offer_type.toLowerCase().includes('full') ? 'full' : 'partial',
+        scholarshipPercentage: o.scholarship_percentage || 0,
+        offerDate: o.offer_date,
+        deadline: o.decision_deadline,
+        daysUntilDeadline: o.days_until_deadline || 0,
+        coachName: o.coach_name,
+        coachEmail: o.coach_email,
+        coachPhone: o.coach_phone,
+        notes: o.notes,
+        pros: Array.isArray(o.pros) ? o.pros : [],
+        cons: Array.isArray(o.cons) ? o.cons : [],
+      }));
+      setOffers(transformedOffers);
+
+      // Load deadlines
+      const { data: deadlinesData, error: deadlinesError } = await supabase
+        .from('recruiting_deadlines')
+        .select('*')
+        .eq('player_id', user.id)
+        .eq('completed', false)
+        .gte('deadline_date', new Date().toISOString().split('T')[0])
+        .order('deadline_date', { ascending: true })
+        .limit(20);
+
+      if (deadlinesError) throw deadlinesError;
+
+      const transformedDeadlines = (deadlinesData || []).map(d => ({
+        id: d.id,
+        title: d.title,
+        date: d.deadline_date,
+        daysUntil: d.days_until || 0,
+        type: d.deadline_type,
+        urgent: d.urgent || false,
+      }));
+      setDeadlines(transformedDeadlines);
+
+    } catch (error) {
+      console.error('Error loading journey data:', error);
+      toast.error('Failed to load recruiting journey data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Calculate stats
   const stats = useMemo(() => {
-    const completedMilestones = MOCK_MILESTONES.filter(m => m.status === 'completed').length;
-    const totalMilestones = MOCK_MILESTONES.length;
-    const activeOffers = MOCK_OFFERS.filter(o => ['pending', 'considering'].includes(o.status)).length;
-    const totalInteractions = MOCK_INTERACTIONS.length;
-    const urgentDeadlines = MOCK_DEADLINES.filter(d => d.urgent && d.daysUntil > 0).length;
-    
+    const completedMilestones = milestones.filter(m => m.status === 'completed').length;
+    const totalMilestones = milestones.length;
+    const activeOffers = offers.filter(o => ['pending', 'considering'].includes(o.status)).length;
+    const totalInteractions = interactions.length;
+    const urgentDeadlines = deadlines.filter(d => d.urgent && d.daysUntil > 0).length;
+
     return {
       completedMilestones,
       totalMilestones,
-      milestoneProgress: Math.round((completedMilestones / totalMilestones) * 100),
+      milestoneProgress: totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0,
       activeOffers,
       totalInteractions,
       urgentDeadlines,
     };
-  }, []);
+  }, [milestones, offers, interactions, deadlines]);
 
   // Generate unified timeline
   const timeline = useMemo((): TimelineEvent[] => {
     const events: TimelineEvent[] = [];
 
     // Add milestones
-    MOCK_MILESTONES.forEach(m => {
+    milestones.forEach(m => {
       events.push({
         id: `m-${m.id}`,
         type: 'milestone',
@@ -307,7 +380,7 @@ export default function PlayerJourneyPage() {
     });
 
     // Add interactions
-    MOCK_INTERACTIONS.forEach(i => {
+    interactions.forEach(i => {
       events.push({
         id: `i-${i.id}`,
         type: 'interaction',
@@ -322,19 +395,19 @@ export default function PlayerJourneyPage() {
 
     // Sort by date (newest first)
     return events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, []);
+  }, [milestones, interactions]);
 
   // Get unique colleges for filter
   const colleges = useMemo(() => {
-    const collegeSet = new Set(MOCK_INTERACTIONS.map(i => i.collegeName));
+    const collegeSet = new Set(interactions.map(i => i.collegeName));
     return Array.from(collegeSet);
-  }, []);
+  }, [interactions]);
 
   // Filter interactions by college
   const filteredInteractions = useMemo(() => {
-    if (!filterCollege) return MOCK_INTERACTIONS;
-    return MOCK_INTERACTIONS.filter(i => i.collegeName === filterCollege);
-  }, [filterCollege]);
+    if (!filterCollege) return interactions;
+    return interactions.filter(i => i.collegeName === filterCollege);
+  }, [filterCollege, interactions]);
 
   const getColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string; dot: string }> = {
@@ -348,6 +421,21 @@ export default function PlayerJourneyPage() {
     };
     return colors[color] || colors.slate;
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className={`min-h-screen pb-20 ${isDark ? 'bg-slate-900' : 'bg-gradient-to-b from-slate-50 to-emerald-50/20'}`}>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+          <div className="space-y-4">
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen pb-20 ${isDark ? 'bg-slate-900' : 'bg-gradient-to-b from-slate-50 to-emerald-50/20'}`}>
@@ -441,7 +529,7 @@ export default function PlayerJourneyPage() {
         </div>
 
         {/* Deadline Reminders */}
-        {MOCK_DEADLINES.filter(d => d.daysUntil > 0).length > 0 && (
+        {deadlines.filter(d => d.daysUntil > 0).length > 0 && (
           <Card className={`overflow-hidden ${
             isDark 
               ? 'bg-gradient-to-r from-amber-500/10 to-red-500/10 border-amber-500/30' 
@@ -455,7 +543,7 @@ export default function PlayerJourneyPage() {
                 </h3>
               </div>
               <div className="flex flex-wrap gap-3">
-                {MOCK_DEADLINES.filter(d => d.daysUntil > 0).map(deadline => (
+                {deadlines.filter(d => d.daysUntil > 0).map(deadline => (
                   <div 
                     key={deadline.id}
                     className={`flex items-center gap-3 px-4 py-2 rounded-xl ${
@@ -598,7 +686,7 @@ export default function PlayerJourneyPage() {
             <CardContent>
               <div className="space-y-4">
                 {['academic', 'athletic', 'recruiting', 'administrative'].map(category => {
-                  const categoryMilestones = MOCK_MILESTONES.filter(m => m.category === category);
+                  const categoryMilestones = milestones.filter(m => m.category === category);
                   if (categoryMilestones.length === 0) return null;
                   
                   return (
@@ -760,7 +848,7 @@ export default function PlayerJourneyPage() {
 
         {activeTab === 'offers' && (
           <div className="space-y-4">
-            {MOCK_OFFERS.map(offer => (
+            {offers.map(offer => (
               <Card 
                 key={offer.id}
                 className={`overflow-hidden ${
@@ -932,7 +1020,7 @@ export default function PlayerJourneyPage() {
                         <th className={`text-left py-3 px-4 text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                           Factor
                         </th>
-                        {MOCK_OFFERS.filter(o => ['pending', 'considering'].includes(o.status)).map(offer => (
+                        {offers.filter(o => ['pending', 'considering'].includes(o.status)).map(offer => (
                           <th key={offer.id} className={`text-center py-3 px-4 text-xs font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>
                             {offer.collegeName}
                           </th>
@@ -951,7 +1039,7 @@ export default function PlayerJourneyPage() {
                           <td className={`py-3 px-4 text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                             {factor.label}
                           </td>
-                          {MOCK_OFFERS.filter(o => ['pending', 'considering'].includes(o.status)).map(offer => (
+                          {offers.filter(o => ['pending', 'considering'].includes(o.status)).map(offer => (
                             <td key={offer.id} className={`text-center py-3 px-4 text-sm ${isDark ? 'text-white' : 'text-slate-800'}`}>
                               {factor.key === 'scholarship' && (
                                 <Badge className={`${
@@ -1046,8 +1134,9 @@ export default function PlayerJourneyPage() {
                       Ready to Decide?
                     </h3>
                     <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                      You have {MOCK_OFFERS.filter(o => ['pending', 'considering'].includes(o.status)).length} active offers to consider. 
-                      Your next deadline is in {Math.min(...MOCK_OFFERS.filter(o => o.daysUntilDeadline).map(o => o.daysUntilDeadline!))} days.
+                      You have {offers.filter(o => ['pending', 'considering'].includes(o.status)).length} active offers to consider.
+                      {offers.filter(o => o.daysUntilDeadline && o.daysUntilDeadline > 0).length > 0 &&
+                        ` Your next deadline is in ${Math.min(...offers.filter(o => o.daysUntilDeadline && o.daysUntilDeadline > 0).map(o => o.daysUntilDeadline!))} days.`}
                     </p>
                     <div className="flex items-center gap-3 mt-4">
                       <Button className="bg-emerald-500 hover:bg-emerald-600">
