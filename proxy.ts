@@ -838,7 +838,7 @@ const PUBLIC_ROUTES = [
 // MIDDLEWARE
 // ═══════════════════════════════════════════════════════════════════════════
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const startTime = Date.now();
   const requestId = generateRequestId();
   const { pathname } = request.nextUrl;

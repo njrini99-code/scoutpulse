@@ -6,9 +6,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: false,
   },
@@ -34,10 +31,7 @@ const nextConfig = {
   // ═══════════════════════════════════════════════════════════════════════════
   // BUNDLE OPTIMIZATION
   // ═══════════════════════════════════════════════════════════════════════════
-  
-  // Enable SWC minification (faster than Terser)
-  swcMinify: true,
-  
+
   // Compiler options for optimization
   compiler: {
     // Remove console.log in production
@@ -48,6 +42,8 @@ const nextConfig = {
   
   // Experimental optimizations
   experimental: {
+    // Enable system TLS certificates for Turbopack (fixes Google Fonts fetching)
+    turbopackUseSystemTlsCerts: true,
     // Optimize package imports for tree-shaking
     optimizePackageImports: [
       'lucide-react',
